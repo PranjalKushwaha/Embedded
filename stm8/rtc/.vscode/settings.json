@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cstdio": "c",
+        "functional": "c",
+        "nrf24.h": "c",
+        "MAIN.C": "cpp"
+    }
+}

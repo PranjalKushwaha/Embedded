@@ -1,0 +1,343 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              02/13/2023 17:41:56 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\MAIN.obj
+COMPILER INVOKED BY: Z:\home\pranjal\megawin\C51\BIN\C51.exe Source\MAIN.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Source;.\So
+                    -urce\Driver\Include;.\Source\Driver\Source;.\Source\Middleware\Include;.\Source\Middleware\Source) DEBUG OBJECTEXTEND PR
+                    -INT(.\Listings\MAIN.lst) TABS(2) OBJECT(.\Objects\MAIN.obj)
+
+line level    source
+
+   1          // /**
+   2          //  ******************************************************************************
+   3          //  *
+   4          //  * @file        MAIN.C
+   5          //  *
+   6          //  * @brief       This is the C code format main file.
+   7          //  *
+   8          //  * @par         Project
+   9          //  *              MG82F6D17
+  10          //  * @version     v0.02
+  11          //  * @date        2020/01/16
+  12          //  * @copyright   Copyright (c) 2019 MegaWin Technology Co., Ltd.
+  13          //  *              All rights reserved.
+  14          //  *
+  15          //  ******************************************************************************
+  16          //  * @par         Disclaimer
+  17          //  *      The Demo software is provided "AS IF"  without any warranty, either
+  18          //  *      expressed or implied, including, but not limited to, the implied warranties
+  19          //  *      of merchantability and fitness for a particular purpose.  The author will
+  20          //  *      not be liable for any special, incidental, consequential or indirect
+  21          //  *      damages due to loss of data or any other reason.
+  22          //  *      These statements agree with the world wide and local dictated laws about
+  23          //  *      authorship and violence against these laws.
+  24          //  ******************************************************************************
+  25          //  ******************************************************************************
+  26          //  */
+  27          
+  28          // #include "MG82F6D17_CONFIG.h"
+  29          // #define MCU_SYSCLK   12000000
+  30          // #define MCU_CPUCLK   (MCU_SYSCLK)
+  31          
+  32          // void DelayXus(u8 xUs) //
+  33          // {
+  34          //   while (xUs != 0)
+  35          //   {
+  36          // #if (MCU_CPUCLK >= 11059200)
+  37          //     _nop_();
+  38          // #endif
+  39          // #if (MCU_CPUCLK >= 14745600)
+  40          //     _nop_();
+  41          //     _nop_();
+  42          //     _nop_();
+  43          //     _nop_();
+  44          // #endif
+  45          // #if (MCU_CPUCLK >= 16000000)
+  46          //     _nop_();
+  47          // #endif
+  48          
+  49          // #if (MCU_CPUCLK >= 22118400)
+  50          //     _nop_();
+  51          //     _nop_();
+  52          //     _nop_();
+  53          //     _nop_();
+C51 COMPILER V9.60.7.0   MAIN                                                              02/13/2023 17:41:56 PAGE 2   
+
+  54          //     _nop_();
+  55          //     _nop_();
+  56          // #endif
+  57          // #if (MCU_CPUCLK >= 24000000)
+  58          //     _nop_();
+  59          //     _nop_();
+  60          // #endif
+  61          // #if (MCU_CPUCLK >= 29491200)
+  62          //     _nop_();
+  63          //     _nop_();
+  64          //     _nop_();
+  65          //     _nop_();
+  66          //     _nop_();
+  67          //     _nop_();
+  68          // #endif
+  69          // #if (MCU_CPUCLK >= 32000000)
+  70          //     _nop_();
+  71          //     _nop_();
+  72          // #endif
+  73          
+  74          //     xUs--;
+  75          //   }
+  76          // }
+  77          // /*************************************************
+  78          // this DelayXms call the previous DelayXus a certin number of time in order to virtully
+  79          // make that amout of dely.
+  80          // Function:         void DelayXms(u16 xMs)
+  81          // Description:    dealy��unit:ms
+  82          // Input:                  u16 xMs -> *1ms  (1~65535)
+  83          // Output:
+  84          // *************************************************/
+  85          // void DelayXms(u16 xMs)
+  86          // {
+  87          //   while (xMs != 0)
+  88          //   {
+  89          //     DelayXus(200); //  when this function is called the first function in the DelayXus gets executed.
+  90          //     DelayXus(200);
+  91          //     DelayXus(200);
+  92          //     DelayXus(200);
+  93          //     DelayXus(200);
+  94          //     xMs--; // run this loop until this function reaches zero
+  95          //   }
+  96          // }
+  97          // u16 GetAdcValue()
+  98          // {
+  99          //   WordTypeDef wAdcValue;
+ 100          //   __DRV_ADC_Start();             // set ADCS,Start ADC
+ 101          //   __DRV_ADC_PollForConversion(); // wait ADC complete
+ 102          //   wAdcValue.B.BHigh = ADCDH;
+ 103          //   wAdcValue.B.BLow = ADCDL;
+ 104          //   __DRV_ADC_ClearFlag(); // clear ADCI flag
+ 105          //   return wAdcValue.W & 0x0FFF;
+ 106          // }
+ 107          // void main()
+ 108          // {
+ 109          
+ 110          //   System_Init();
+ 111          
+ 112          // #if 0 // for test ITEA Function
+ 113          //     __DRV_INT_ITEA_Enable();
+ 114          // #endif
+ 115          //   //u32 dwTemp0, dwTemp1;
+C51 COMPILER V9.60.7.0   MAIN                                                              02/13/2023 17:41:56 PAGE 3   
+
+ 116          //   while (1)
+ 117          //   {
+ 118          //     printf("Hello ,UART0 Initial with Wizard\r\n");
+ 119          //     printf("Txd = P31, Rxd = P30, Baud rate = 57600\r\n");
+ 120          //     printf("0 1 2 3 4 5 6 7 8 9 0\r\n");
+ 121          //     printf("~ ! @ # $ % ^ & * ( ) _ + = { } [ ] ; : ' ? . , \r\n");
+ 122          //     printf("a b c d e f g h i j k l m n o p q r s t u v w x y z\r\n");
+ 123          //     printf("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z\r\n");
+ 124          //     ADCFG0 |= ADCEN;
+ 125          //     ADCFG0 |= (ADCKS0 | ADCKS2 | ADRJ);
+ 126          //     ADCON0 |= (CHS2 | CHS1 | CHS0);
+ 127          
+ 128          //     while (1)
+ 129          //     {
+ 130          //       DelayXms(50);
+ 131          //       printf("Hello there123\n");
+ 132          //       __DRV_ADC_PinMux_Select(AIN7);
+ 133          //       printf("Hello there456\n");
+ 134          //       GetAdcValue();
+ 135          //       printf("Hello there789\n");
+ 136          
+ 137          //       printf("%d\n", ADCDH);
+ 138          //       printf("%d\n", ADCDL);
+ 139          //     }
+ 140          //   }
+ 141          // }
+ 142          
+ 143          /*********************************************************************
+ 144            Project:MG82F6D17-DEMO
+ 145            Author:YZY
+ 146                MG82F6D17 SSOP20_V10 EV Board (TH194A)
+ 147                CpuCLK=12MHz, SysCLK=12MHz
+ 148            Description:
+ 149                Through the IVREF 1.4v, calculate the P10 input voltage
+ 150            Note:
+ 151          
+ 152            Creat time::
+ 153            Modify::
+ 154          
+ 155          *********************************************************************/
+ 156          #include "MG82F6D17_CONFIG.h"
+ 157          
+ 158          #define MCU_SYSCLK 12000000
+ 159          #define MCU_CPUCLK (MCU_SYSCLK)
+ 160          #define LED_G_0 P33
+ 161          #define LED_R P34
+ 162          #define LED_G_1 P35
+ 163          
+ 164          /*************************************************
+ 165          Function:     char putchar (char c)
+ 166          Description:  send for printf
+ 167          Input:        char c
+ 168          Output:
+ 169          *************************************************/
+ 170          char putchar(char c)
+ 171          {
+ 172   1        bit bES;
+ 173   1        bES = ES0;
+ 174   1        ES0 = 0;
+ 175   1        S0BUF = c;
+ 176   1        while (TI0 == 0)
+ 177   1          ;
+C51 COMPILER V9.60.7.0   MAIN                                                              02/13/2023 17:41:56 PAGE 4   
+
+ 178   1        TI0 = 0;
+ 179   1        ES0 = bES;
+ 180   1        return 0;
+ 181   1      }
+ 182          
+ 183          /*************************************************
+ 184          Function:       void DelayXus(u16 xUs)
+ 185          Description:    dealy��unit:us
+ 186          Input:          u8 Us -> *1us  (1~255)
+ 187          Output:
+ 188          *************************************************/
+ 189          void DelayXus(u8 xUs)
+ 190          {
+ 191   1        while (xUs != 0)
+ 192   1        {
+ 193   2      #if (MCU_CPUCLK >= 11059200)
+ 194   2          _nop_();
+ 195   2      #endif
+ 196   2      #if (MCU_CPUCLK >= 14745600)
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+              #endif
+ 202   2      #if (MCU_CPUCLK >= 16000000)
+                  _nop_();
+              #endif
+ 205   2      
+ 206   2      #if (MCU_CPUCLK >= 22118400)
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+              #endif
+ 214   2      #if (MCU_CPUCLK >= 24000000)
+                  _nop_();
+                  _nop_();
+              #endif
+ 218   2      #if (MCU_CPUCLK >= 29491200)
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+              #endif
+ 226   2      #if (MCU_CPUCLK >= 32000000)
+                  _nop_();
+                  _nop_();
+              #endif
+ 230   2      
+ 231   2          xUs--;
+ 232   2        }
+ 233   1      }
+ 234          
+ 235          /*************************************************
+ 236          Function:       void DelayXms(u16 xMs)
+ 237          Description:    dealy��unit:ms
+ 238          Input:          u16 xMs -> *1ms  (1~65535)
+ 239          Output:
+C51 COMPILER V9.60.7.0   MAIN                                                              02/13/2023 17:41:56 PAGE 5   
+
+ 240          *************************************************/
+ 241          void DelayXms(u16 xMs)
+ 242          {
+ 243   1        while (xMs != 0)
+ 244   1        {
+ 245   2          DelayXus(200);
+ 246   2          DelayXus(200);
+ 247   2          DelayXus(200);
+ 248   2          DelayXus(200);
+ 249   2          DelayXus(200);
+ 250   2          xMs--;
+ 251   2        }
+ 252   1      }
+ 253          
+ 254          /***********************************************************************************
+ 255          Function:     u16 GetAdcData()
+ 256          Description:  read ADC result of the current channel
+ 257          Input:
+ 258          Output:       u16 :ADC Value
+ 259          *************************************************************************************/
+ 260          u16 GetAdcValue()
+ 261          {
+ 262   1        WordTypeDef wAdcValue;
+ 263   1        ADCON0 = ADCON0|ADCS;           // set ADCS,Start ADC
+ 264   1          while((ADCON0&ADCI)==0);                // wait ADC complete
+ 265   1          wAdcValue.B.BHigh=ADCDH;
+ 266   1        //printf("ADCL\r\n  %u", ADCDL);
+ 267   1        printf("ADCH  %u\r\n", ADCDH);
+ 268   1          wAdcValue.B.BLow=ADCDL;
+ 269   1        ADCON0 = ADCON0&(~ADCI);                // clear ADCI flag
+ 270   1        return wAdcValue.W&0x0FFF;
+ 271   1      }
+ 272          
+ 273          
+ 274          void main()
+ 275          {
+ 276   1        u16 wADCValue;
+ 277   1        u32 dwTemp0, dwTemp1;
+ 278   1      
+ 279   1        System_Init();
+ 280   1      
+ 281   1        __DRV_IVREF_Cmd(ENABLE); // Eanble IVREF 1.4V
+ 282   1      
+ 283   1        LED_G_0 = 0;
+ 284   1        LED_G_1 = 0;
+ 285   1        LED_R = 0;
+ 286   1        DelayXms(1000);
+ 287   1        LED_G_0 = 1;
+ 288   1        LED_G_1 = 1;
+ 289   1        LED_R = 1;
+ 290   1        __DRV_ADC_Enable();
+ 291   1        __DRV_ADC_ClockSource_Select(ADC_SYSCLK_DIV_32);
+ 292   1        while (1)
+ 293   1        {
+ 294   2          DelayXms(2000);
+ 295   2          LED_R = !LED_R;
+ 296   2      
+ 297   2          // __DRV_ADC_PinMux_Select(INTERNAL_VERF); // Set the ADC channel to IVR 1.4v
+ 298   2      
+ 299   2          // dwTemp0 = GetAdcValue(); // read ADC value
+ 300   2      
+ 301   2          ADCON0=(ADCON0&(~(CHS3|CHS2|CHS1|CHS0)))|(CHS2|CHS1|CHS0); // Set the ADC channel to AIN0
+C51 COMPILER V9.60.7.0   MAIN                                                              02/13/2023 17:41:56 PAGE 6   
+
+ 302   2          dwTemp1 = GetAdcValue();     // read ADC value
+ 303   2          // calculate the P10(AIN0) input voltage
+ 304   2          wADCValue = (dwTemp1 * 1400L);
+ 305   2          // Output the result by UART
+ 306   2        }
+ 307   1      }
+*** WARNING C280 IN LINE 277 OF Source\MAIN.c: 'dwTemp0': unreferenced local variable
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    204    ----
+   CONSTANT SIZE    =     11    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      12
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

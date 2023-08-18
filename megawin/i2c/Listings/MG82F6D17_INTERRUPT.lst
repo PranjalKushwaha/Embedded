@@ -1,0 +1,399 @@
+C51 COMPILER V9.60.7.0   MG82F6D17_INTERRUPT                                               02/11/2023 23:02:41 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MG82F6D17_INTERRUPT
+OBJECT MODULE PLACED IN .\Objects\MG82F6D17_INTERRUPT.obj
+COMPILER INVOKED BY: Z:\home\pranjal\megawin\C51\BIN\C51.exe Source\Driver\Source\MG82F6D17_INTERRUPT.c OPTIMIZE(8,SPEED
+                    -) BROWSE INCDIR(.\Source;.\Source\Driver\Include;.\Source\Driver\Source;.\Source\Middleware\Include;.\Source\Middleware\
+                    -Source) DEBUG OBJECTEXTEND PRINT(.\Listings\MG82F6D17_INTERRUPT.lst) TABS(2) OBJECT(.\Objects\MG82F6D17_INTERRUPT.obj)
+
+line level    source
+
+   1          /**
+   2           ******************************************************************************
+   3           *
+   4           * @file        MG82F6D17_INTERRUPT.C
+   5           *
+   6           * @brief       This is the C code format driver source file.
+   7           *
+   8           * @par         Project
+   9           *              MG82F6D17
+  10           * @version     V0.02
+  11           * @date        2020/01/07
+  12           * @copyright   Copyright (c) 2019 MegaWin Technology Co., Ltd.
+  13           *              All rights reserved.
+  14           *
+  15           ******************************************************************************
+  16           * @par         Disclaimer
+  17           *      The Demo software is provided "AS IF"  without any warranty, either
+  18           *      expressed or implied, including, but not limited to, the implied warranties
+  19           *      of merchantability and fitness for a particular purpose.  The author will
+  20           *      not be liable for any special, incidental, consequential or indirect
+  21           *      damages due to loss of data or any other reason.
+  22           *      These statements agree with the world wide and local dictated laws about
+  23           *      authorship and violence against these laws.
+  24           ******************************************************************************
+  25           ******************************************************************************
+  26           */
+  27          
+  28          
+  29          #include "MG82F6D17_CONFIG.h"
+  30          
+  31          
+  32          /**
+  33           *******************************************************************************
+  34           * 
+  35           * 
+  36           * 
+  37           * Interrupts ISR
+  38           * 
+  39           * 
+  40           * 
+  41           *******************************************************************************
+  42           */
+  43          /**
+  44           *******************************************************************************
+  45           * @brief       External Interrupt 0 Vector Service Routine
+  46           * @details
+  47           * @return      None
+  48           * @note
+  49           * @par         Example
+  50           * @code
+  51           *    ExINT0_IE0_ISR();
+  52           * @endcode
+  53           *******************************************************************************
+C51 COMPILER V9.60.7.0   MG82F6D17_INTERRUPT                                               02/11/2023 23:02:41 PAGE 2   
+
+  54           */
+  55          #if MG82F6D17_INT0_EN
+  56          void ExINT0_IE0_ISR(void)  interrupt INT0_ISR_VECTOR
+  57          {
+  58   1          __DRV_INT0_ClearFlag();
+  59   1      }
+  60          #endif
+  61          
+  62          /**
+  63           *******************************************************************************
+  64           * @brief       Timer 0 Interrupt Vector Service Routine
+  65           * @details
+  66           * @return      None
+  67           * @note
+  68           * @par         Example
+  69           * @code
+  70           *    TIMER0_TF0_ISR();
+  71           * @endcode
+  72           *******************************************************************************
+  73           */
+  74          #if MG82F6D17_TIMER0_IT_EN
+              void TIMER0_TF0_ISR(void)   interrupt TIMER0_ISR_VECTOR 
+              {
+              }
+              #endif
+  79          
+  80          /**
+  81           *******************************************************************************
+  82           * @brief       External Interrupt 1 Vector Service Routine
+  83           * @details
+  84           * @return      None
+  85           * @note
+  86           * @par         Example
+  87           * @code
+  88           *    ExINT1_IE1_ISR();
+  89           * @endcode
+  90           *******************************************************************************
+  91           */
+  92          #if MG82F6D17_INT1_EN
+              void ExINT1_IE1_ISR(void)   interrupt INT1_ISR_VECTOR
+              {
+                  __DRV_INT1_ClearFlag();
+              }
+              #endif
+  98          
+  99          /**
+ 100           *******************************************************************************
+ 101           * @brief       Timer 1 Interrupt Vector Service Routine
+ 102           * @details
+ 103           * @return      None
+ 104           * @note
+ 105           * @par         Example
+ 106           * @code
+ 107           *    TIMER1_TF1_ISR();
+ 108           * @endcode
+ 109           *******************************************************************************
+ 110           */
+ 111          #if MG82F6D17_TIMER1_IT_EN
+              void TIMER1_TF1_ISR(void)   interrupt TIMER1_ISR_VECTOR 
+              {
+              }
+              #endif
+C51 COMPILER V9.60.7.0   MG82F6D17_INTERRUPT                                               02/11/2023 23:02:41 PAGE 3   
+
+ 116          
+ 117          /**
+ 118           *******************************************************************************
+ 119           * @brief       UART0 Interrupt Vector Service Routine
+ 120           * @details
+ 121           * @return      None
+ 122           * @note
+ 123           * @par         Example
+ 124           * @code
+ 125           *    UART0_S0RI_S0TI_ISR();
+ 126           * @endcode
+ 127           *******************************************************************************
+ 128           */
+ 129          #if MG82F6D17_S0_IT_EN
+              void UART0_S0RI_S0TI_ISR(void)   interrupt S0_ISR_VECTOR 
+              {
+              }
+              #endif
+ 134          
+ 135          
+ 136          /**
+ 137           *******************************************************************************
+ 138           * @brief       Timer 2 Interrupt Vector Service Routine
+ 139           * @details
+ 140           * @return      None
+ 141           * @note
+ 142           * @par         Example
+ 143           * @code
+ 144           *    TIMER2_TF2_EXF2_ISR();
+ 145           * @endcode
+ 146           *******************************************************************************
+ 147           */
+ 148          #if MG82F6D17_TIMER2_IT_EN
+              void TIMER2_TF2_EXF2_ISR(void)   interrupt TIMER2_ISR_VECTOR 
+              {
+              }
+              #endif
+ 153          
+ 154          
+ 155          /**
+ 156           *******************************************************************************
+ 157           * @brief       External Interrupt 2 Vector Service Routine
+ 158           * @details
+ 159           * @return      None
+ 160           * @note
+ 161           * @par         Example
+ 162           * @code
+ 163           *    ExINT2_IE2_ISR();
+ 164           * @endcode
+ 165           *******************************************************************************
+ 166           */
+ 167          #if MG82F6D17_INT2_EN
+              void ExINT2_IE2_ISR(void)   interrupt INT2_ISR_VECTOR
+              {
+                  __DRV_INT2_ClearFlag();
+              }
+              #endif
+ 173          
+ 174          
+ 175          /**
+ 176           *******************************************************************************
+ 177           * @brief       SPI Interrupt Vector Service Routine
+C51 COMPILER V9.60.7.0   MG82F6D17_INTERRUPT                                               02/11/2023 23:02:41 PAGE 4   
+
+ 178           * @details
+ 179           * @return      None
+ 180           * @note
+ 181           * @par         Example
+ 182           * @code
+ 183           *    SPI_SPIF_ISR();
+ 184           * @endcode
+ 185           *******************************************************************************
+ 186           */
+ 187          #if MG82F6D17_SPI_IT_EN
+              void SPI_SPIF_ISR(void)   interrupt SPI_ISR_VECTOR 
+              {
+              }
+              #endif
+ 192          
+ 193          
+ 194          /**
+ 195           *******************************************************************************
+ 196           * @brief       ADC Interrupt Vector Service Routine
+ 197           * @details
+ 198           * @return      None
+ 199           * @note
+ 200           * @par         Example
+ 201           * @code
+ 202           *    ADC_ADCI_ISR();
+ 203           * @endcode
+ 204           *******************************************************************************
+ 205           */
+ 206          #if MG82F6D17_ADC_IT_EN
+              void ADC_ADCI_ISR(void)   interrupt ADC_ISR_VECTOR 
+              {
+              }
+              #endif
+ 211          
+ 212          
+ 213          /**
+ 214           *******************************************************************************
+ 215           * @brief       PCA 0 Interrupt Vector Service Routine
+ 216           * @details
+ 217           * @return      None
+ 218           * @note
+ 219           * @par         Example
+ 220           * @code
+ 221           *    PCA0_CF_CCFn_ISR();
+ 222           * @endcode
+ 223           *******************************************************************************
+ 224           */
+ 225          #if MG82F6D17_PCA0_IT_EN
+              void PCA0_CF_CCFn_ISR(void)   interrupt PCA0_ISR_VECTOR 
+              {
+              }
+              #endif
+ 230          
+ 231          
+ 232          /**
+ 233           *******************************************************************************
+ 234           * @brief       System Flag Interrupt Vector Service Routine
+ 235           * @details
+ 236           * @return      None
+ 237           * @note
+ 238           * @par         Example
+ 239           * @code
+C51 COMPILER V9.60.7.0   MG82F6D17_INTERRUPT                                               02/11/2023 23:02:41 PAGE 5   
+
+ 240           *    SYSFlag_ISR();
+ 241           * @endcode
+ 242           *******************************************************************************
+ 243           */
+ 244          #if MG82F6D17_SYSFLAG_EN
+              void SYSFlag_ISR()  interrupt SYSFLAG_ISR_VECTOR
+              {
+              }
+              #endif
+ 249          
+ 250          
+ 251          /**
+ 252           *******************************************************************************
+ 253           * @brief       KBI Interrupt Vector Service Routine
+ 254           * @details
+ 255           * @return      None
+ 256           * @note
+ 257           * @par         Example
+ 258           * @code
+ 259           *    KBI_KBIF_ISR();
+ 260           * @endcode
+ 261           *******************************************************************************
+ 262           */
+ 263          #if MG82F6D17_KBI_EN
+              void KBI_KBIF_ISR()  interrupt KBI_ISR_VECTOR
+              {
+                  __DRV_KBI_ClearFlag();
+              }
+              #endif
+ 269          
+ 270          
+ 271          /**
+ 272           *******************************************************************************
+ 273           * @brief       TWI0 Interrupt Vector Service Routine
+ 274           * @details
+ 275           * @return      None
+ 276           * @note
+ 277           * @par         Example
+ 278           * @code
+ 279           *    TWI0_SI_ISR();
+ 280           * @endcode
+ 281           *******************************************************************************
+ 282           */
+ 283          #if MG82F6D17_TWI0_IT_EN
+              void TWI0_SI_ISR(void)   interrupt TWI0_ISR_VECTOR 
+              {
+              }
+              #endif
+ 288          
+ 289          
+ 290          /**
+ 291           *******************************************************************************
+ 292           * @brief       UART1 Interrupt Vector Service Routine
+ 293           * @details
+ 294           * @return      None
+ 295           * @note
+ 296           * @par         Example
+ 297           * @code
+ 298           *    UART1_S1RI_S1TI_ISR();
+ 299           * @endcode
+ 300           *******************************************************************************
+ 301           */
+C51 COMPILER V9.60.7.0   MG82F6D17_INTERRUPT                                               02/11/2023 23:02:41 PAGE 6   
+
+ 302          #if MG82F6D17_S1_IT_EN
+              void UART1_S1RI_S1TI_ISR(void)   interrupt S1_ISR_VECTOR 
+              {
+              }
+              #endif
+ 307          
+ 308          
+ 309          /**
+ 310           *******************************************************************************
+ 311           * @brief       Timer 3 Interrupt Vector Service Routine
+ 312           * @details
+ 313           * @return      None
+ 314           * @note
+ 315           * @par         Example
+ 316           * @code
+ 317           *    TIMER3_TF3_EXF3_ISR();
+ 318           * @endcode
+ 319           *******************************************************************************
+ 320           */
+ 321          #if MG82F6D17_TIMER3_IT_EN
+              void TIMER3_TF3_EXF3_ISR(void)   interrupt TIMER3_ISR_VECTOR 
+              {
+              }
+              #endif
+ 326          
+ 327          
+ 328          /**
+ 329           *******************************************************************************
+ 330           * @brief       DMA Interrupt Vector Service Routine
+ 331           * @details
+ 332           * @return      None
+ 333           * @note
+ 334           * @par         Example
+ 335           * @code
+ 336           *    DMA_DCF0_ISR();
+ 337           * @endcode
+ 338           *******************************************************************************
+ 339           */
+ 340          #if MG82F6D17_DMA_IT_EN
+              void DMA_DCF0_ISR(void)   interrupt DMA_ISR_VECTOR 
+              {
+              }
+              #endif
+ 345          
+ 346          
+ 347          
+ 348          
+ 349          
+ 350          
+ 351          
+ 352          
+ 353          
+ 354          
+ 355          
+ 356          
+ 357          
+ 358          
+ 359          
+ 360          
+ 361          
+ 362          
+
+C51 COMPILER V9.60.7.0   MG82F6D17_INTERRUPT                                               02/11/2023 23:02:41 PAGE 7   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =      3    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

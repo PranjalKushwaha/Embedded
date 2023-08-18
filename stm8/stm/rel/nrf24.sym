@@ -1,0 +1,47 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (STMicroelectronics STM8), page 1.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  002710 L
+    .__.ABS.                                                    =  000000 G
+    .__.CPU.                                                    =  000000 L
+    .__.H$L.                                                    =  000001 L
+  9 _SPI_Send                                                      000000 GR
+  1 _data_buffer                                                   000000 GR
+  9 _nrf24_available                                               000216 GR
+  9 _nrf24_getDynamicPayloadSize                                   000253 GR
+  9 _nrf24_get_data                                                0001DA GR
+  9 _nrf24_listen                                                  00008E GR
+  9 _nrf24_read_register                                           000025 GR
+  9 _nrf24_setup                                                   00008F GR
+  9 _nrf24_startListening                                          00026C GR
+  9 _nrf24_status_reset                                            0001C5 GR
+  9 _nrf24_stopListening                                           000295 GR
+  9 _nrf24_write_register                                          00004F GR
+  9 _radio_init                                                    0002E4 GR
+  9 _radio_power_down                                              0002CB GR
+  9 _radio_power_up                                                0002B2 GR
+  9 _radio_recieve                                                 0002F6 GR
+  9 _radio_send                                                    000319 GR
+    _spi_init                                                      ****** GX
+    _spi_transceiver                                               ****** GX
+  1 _write_buffer                                                  000021 GR
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (STMicroelectronics STM8), page 2.
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE                                      size      0   flags    0
+   1 DATA                                       size     42   flags    0
+   2 INITIALIZED                                size      0   flags    0
+   3 DABS                                       size      0   flags    8
+   4 HOME                                       size      0   flags    0
+   5 GSINIT                                     size      0   flags    0
+   6 GSFINAL                                    size      0   flags    0
+   7 CONST                                      size      0   flags    0
+   8 INITIALIZER                                size      0   flags    0
+   9 CODE                                       size    39A   flags    0
+   A CABS                                       size      0   flags    8
+

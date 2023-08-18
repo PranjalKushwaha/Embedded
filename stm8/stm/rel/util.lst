@@ -1,0 +1,353 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.0 #11528 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module util
+                                      6 	.optsdcc -mstm8
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _awu_set_regs
+                                     12 	.globl _awu_get_timebase
+                                     13 	.globl _putchar
+                                     14 	.globl _awu_sleep
+                                     15 ;--------------------------------------------------------
+                                     16 ; ram data
+                                     17 ;--------------------------------------------------------
+                                     18 	.area DATA
+                                     19 ;--------------------------------------------------------
+                                     20 ; ram data
+                                     21 ;--------------------------------------------------------
+                                     22 	.area INITIALIZED
+                                     23 ;--------------------------------------------------------
+                                     24 ; absolute external ram data
+                                     25 ;--------------------------------------------------------
+                                     26 	.area DABS (ABS)
+                                     27 
+                                     28 ; default segment ordering for linker
+                                     29 	.area HOME
+                                     30 	.area GSINIT
+                                     31 	.area GSFINAL
+                                     32 	.area CONST
+                                     33 	.area INITIALIZER
+                                     34 	.area CODE
+                                     35 
+                                     36 ;--------------------------------------------------------
+                                     37 ; global & static initialisations
+                                     38 ;--------------------------------------------------------
+                                     39 	.area HOME
+                                     40 	.area GSINIT
+                                     41 	.area GSFINAL
+                                     42 	.area GSINIT
+                                     43 ;--------------------------------------------------------
+                                     44 ; Home
+                                     45 ;--------------------------------------------------------
+                                     46 	.area HOME
+                                     47 	.area HOME
+                                     48 ;--------------------------------------------------------
+                                     49 ; code
+                                     50 ;--------------------------------------------------------
+                                     51 	.area CODE
+                                     52 ;	HAL/src/util.c: 5: int putchar(int c)
+                                     53 ;	-----------------------------------------
+                                     54 ;	 function putchar
+                                     55 ;	-----------------------------------------
+      000000                         56 _putchar:
+                                     57 ;	HAL/src/util.c: 8: while (!(UART1_SR & UART_SR_TXE))
+      000000                         58 00101$:
+      000000 C6 52 30         [ 1]   59 	ld	a, 0x5230
+      000003 2A FB            [ 1]   60 	jrpl	00101$
+                                     61 ;	HAL/src/util.c: 11: UART1_DR = (char)c;
+      000005 7B 04            [ 1]   62 	ld	a, (0x04, sp)
+      000007 C7 52 31         [ 1]   63 	ld	0x5231, a
+                                     64 ;	HAL/src/util.c: 13: while (!(UART1_SR & UART_SR_TC))
+      00000A                         65 00104$:
+      00000A C6 52 30         [ 1]   66 	ld	a, 0x5230
+      00000D A5 40            [ 1]   67 	bcp	a, #0x40
+      00000F 27 F9            [ 1]   68 	jreq	00104$
+                                     69 ;	HAL/src/util.c: 15: return 0;
+      000011 5F               [ 1]   70 	clrw	x
+                                     71 ;	HAL/src/util.c: 16: }
+      000012 81               [ 4]   72 	ret
+                                     73 ;	HAL/src/util.c: 18: uint8_t awu_get_timebase(uint32_t time, uint32_t freq) // time in microseconds
+                                     74 ;	-----------------------------------------
+                                     75 ;	 function awu_get_timebase
+                                     76 ;	-----------------------------------------
+      000013                         77 _awu_get_timebase:
+      000013 52 0F            [ 2]   78 	sub	sp, #15
+                                     79 ;	HAL/src/util.c: 20: float f = (float)freq / 1e6;
+      000015 1E 18            [ 2]   80 	ldw	x, (0x18, sp)
+      000017 89               [ 2]   81 	pushw	x
+      000018 1E 18            [ 2]   82 	ldw	x, (0x18, sp)
+      00001A 89               [ 2]   83 	pushw	x
+      00001B CDr00r00         [ 4]   84 	call	___ulong2fs
+      00001E 5B 04            [ 2]   85 	addw	sp, #4
+      000020 4B 00            [ 1]   86 	push	#0x00
+      000022 4B 24            [ 1]   87 	push	#0x24
+      000024 4B 74            [ 1]   88 	push	#0x74
+      000026 4B 49            [ 1]   89 	push	#0x49
+      000028 89               [ 2]   90 	pushw	x
+      000029 90 89            [ 2]   91 	pushw	y
+      00002B CDr00r00         [ 4]   92 	call	___fsdiv
+      00002E 5B 08            [ 2]   93 	addw	sp, #8
+      000030 1F 0E            [ 2]   94 	ldw	(0x0e, sp), x
+      000032 17 0C            [ 2]   95 	ldw	(0x0c, sp), y
+                                     96 ;	HAL/src/util.c: 21: f = f * time;
+      000034 1E 14            [ 2]   97 	ldw	x, (0x14, sp)
+      000036 89               [ 2]   98 	pushw	x
+      000037 1E 14            [ 2]   99 	ldw	x, (0x14, sp)
+      000039 89               [ 2]  100 	pushw	x
+      00003A CDr00r00         [ 4]  101 	call	___ulong2fs
+      00003D 5B 04            [ 2]  102 	addw	sp, #4
+      00003F 89               [ 2]  103 	pushw	x
+      000040 90 89            [ 2]  104 	pushw	y
+      000042 1E 12            [ 2]  105 	ldw	x, (0x12, sp)
+      000044 89               [ 2]  106 	pushw	x
+      000045 1E 12            [ 2]  107 	ldw	x, (0x12, sp)
+      000047 89               [ 2]  108 	pushw	x
+      000048 CDr00r00         [ 4]  109 	call	___fsmul
+      00004B 5B 08            [ 2]  110 	addw	sp, #8
+      00004D 1F 07            [ 2]  111 	ldw	(0x07, sp), x
+      00004F 17 05            [ 2]  112 	ldw	(0x05, sp), y
+                                    113 ;	HAL/src/util.c: 22: if (f < 64)
+      000051 5F               [ 1]  114 	clrw	x
+      000052 89               [ 2]  115 	pushw	x
+      000053 4B 80            [ 1]  116 	push	#0x80
+      000055 4B 42            [ 1]  117 	push	#0x42
+      000057 1E 0B            [ 2]  118 	ldw	x, (0x0b, sp)
+      000059 89               [ 2]  119 	pushw	x
+      00005A 1E 0B            [ 2]  120 	ldw	x, (0x0b, sp)
+      00005C 89               [ 2]  121 	pushw	x
+      00005D CDr00r00         [ 4]  122 	call	___fslt
+      000060 5B 08            [ 2]  123 	addw	sp, #8
+      000062 4D               [ 1]  124 	tnz	a
+      000063 27 04            [ 1]  125 	jreq	00102$
+                                    126 ;	HAL/src/util.c: 24: return 1;
+      000065 A6 01            [ 1]  127 	ld	a, #0x01
+      000067 20 4C            [ 2]  128 	jra	00110$
+      000069                        129 00102$:
+                                    130 ;	HAL/src/util.c: 26: uint32_t counter = 128;
+      000069 AE 00 80         [ 2]  131 	ldw	x, #0x0080
+      00006C 1F 0C            [ 2]  132 	ldw	(0x0c, sp), x
+      00006E 5F               [ 1]  133 	clrw	x
+      00006F 1F 0A            [ 2]  134 	ldw	(0x0a, sp), x
+                                    135 ;	HAL/src/util.c: 27: uint8_t val = 2;
+      000071 A6 02            [ 1]  136 	ld	a, #0x02
+                                    137 ;	HAL/src/util.c: 28: for (int i = 0; i < 16; i++)
+      000073 5F               [ 1]  138 	clrw	x
+      000074 1F 0E            [ 2]  139 	ldw	(0x0e, sp), x
+      000076                        140 00108$:
+      000076 1E 0E            [ 2]  141 	ldw	x, (0x0e, sp)
+      000078 A3 00 10         [ 2]  142 	cpw	x, #0x0010
+      00007B 2E 37            [ 1]  143 	jrsge	00106$
+                                    144 ;	HAL/src/util.c: 30: if (f <= counter)
+      00007D 88               [ 1]  145 	push	a
+      00007E 1E 0D            [ 2]  146 	ldw	x, (0x0d, sp)
+      000080 89               [ 2]  147 	pushw	x
+      000081 1E 0D            [ 2]  148 	ldw	x, (0x0d, sp)
+      000083 89               [ 2]  149 	pushw	x
+      000084 CDr00r00         [ 4]  150 	call	___ulong2fs
+      000087 5B 04            [ 2]  151 	addw	sp, #4
+      000089 1F 04            [ 2]  152 	ldw	(0x04, sp), x
+      00008B 84               [ 1]  153 	pop	a
+      00008C 88               [ 1]  154 	push	a
+      00008D 1E 08            [ 2]  155 	ldw	x, (0x08, sp)
+      00008F 89               [ 2]  156 	pushw	x
+      000090 1E 08            [ 2]  157 	ldw	x, (0x08, sp)
+      000092 89               [ 2]  158 	pushw	x
+      000093 1E 08            [ 2]  159 	ldw	x, (0x08, sp)
+      000095 89               [ 2]  160 	pushw	x
+      000096 90 89            [ 2]  161 	pushw	y
+      000098 CDr00r00         [ 4]  162 	call	___fslt
+      00009B 5B 08            [ 2]  163 	addw	sp, #8
+      00009D 6B 0A            [ 1]  164 	ld	(0x0a, sp), a
+      00009F 84               [ 1]  165 	pop	a
+      0000A0 0D 09            [ 1]  166 	tnz	(0x09, sp)
+                                    167 ;	HAL/src/util.c: 31: return val;
+      0000A2 27 11            [ 1]  168 	jreq	00110$
+                                    169 ;	HAL/src/util.c: 34: counter = counter << 1;
+      0000A4 08 0D            [ 1]  170 	sll	(0x0d, sp)
+      0000A6 09 0C            [ 1]  171 	rlc	(0x0c, sp)
+      0000A8 09 0B            [ 1]  172 	rlc	(0x0b, sp)
+      0000AA 09 0A            [ 1]  173 	rlc	(0x0a, sp)
+                                    174 ;	HAL/src/util.c: 35: val = val + 1;
+      0000AC 4C               [ 1]  175 	inc	a
+                                    176 ;	HAL/src/util.c: 28: for (int i = 0; i < 16; i++)
+      0000AD 1E 0E            [ 2]  177 	ldw	x, (0x0e, sp)
+      0000AF 5C               [ 1]  178 	incw	x
+      0000B0 1F 0E            [ 2]  179 	ldw	(0x0e, sp), x
+      0000B2 20 C2            [ 2]  180 	jra	00108$
+      0000B4                        181 00106$:
+                                    182 ;	HAL/src/util.c: 38: return 0;
+      0000B4 4F               [ 1]  183 	clr	a
+      0000B5                        184 00110$:
+                                    185 ;	HAL/src/util.c: 39: }
+      0000B5 5B 0F            [ 2]  186 	addw	sp, #15
+      0000B7 81               [ 4]  187 	ret
+                                    188 ;	HAL/src/util.c: 41: void awu_set_regs(uint8_t tbr, uint8_t apr)
+                                    189 ;	-----------------------------------------
+                                    190 ;	 function awu_set_regs
+                                    191 ;	-----------------------------------------
+      0000B8                        192 _awu_set_regs:
+                                    193 ;	HAL/src/util.c: 43: AWU_TBR &= ~(0x0F);
+      0000B8 C6 50 F2         [ 1]  194 	ld	a, 0x50f2
+      0000BB A4 F0            [ 1]  195 	and	a, #0xf0
+      0000BD C7 50 F2         [ 1]  196 	ld	0x50f2, a
+                                    197 ;	HAL/src/util.c: 44: AWU_TBR |= tbr;
+      0000C0 C6 50 F2         [ 1]  198 	ld	a, 0x50f2
+      0000C3 1A 03            [ 1]  199 	or	a, (0x03, sp)
+      0000C5 C7 50 F2         [ 1]  200 	ld	0x50f2, a
+                                    201 ;	HAL/src/util.c: 45: AWU_APR &= ~(0x3F);
+      0000C8 C6 50 F1         [ 1]  202 	ld	a, 0x50f1
+      0000CB A4 C0            [ 1]  203 	and	a, #0xc0
+      0000CD C7 50 F1         [ 1]  204 	ld	0x50f1, a
+                                    205 ;	HAL/src/util.c: 46: AWU_APR |= apr;
+      0000D0 C6 50 F1         [ 1]  206 	ld	a, 0x50f1
+      0000D3 1A 04            [ 1]  207 	or	a, (0x04, sp)
+      0000D5 C7 50 F1         [ 1]  208 	ld	0x50f1, a
+                                    209 ;	HAL/src/util.c: 47: AWU_CSR |= AWU_CSR_AWUEN;
+      0000D8 C6 50 F0         [ 1]  210 	ld	a, 0x50f0
+      0000DB AA 10            [ 1]  211 	or	a, #0x10
+      0000DD C7 50 F0         [ 1]  212 	ld	0x50f0, a
+                                    213 ;	HAL/src/util.c: 48: halt();
+      0000E0 8E               [10]  214 	halt
+                                    215 ;	HAL/src/util.c: 49: }
+      0000E1 81               [ 4]  216 	ret
+                                    217 ;	HAL/src/util.c: 51: void awu_sleep(uint32_t time) // microseconds
+                                    218 ;	-----------------------------------------
+                                    219 ;	 function awu_sleep
+                                    220 ;	-----------------------------------------
+      0000E2                        221 _awu_sleep:
+      0000E2 52 05            [ 2]  222 	sub	sp, #5
+                                    223 ;	HAL/src/util.c: 54: if (time <= (uint32_t)(1e6 * (uint32_t)2048 * 128 / (float)LSI_FREQUENCY))
+      0000E4 5F               [ 1]  224 	clrw	x
+      0000E5 A6 40            [ 1]  225 	ld	a, #0x40
+      0000E7 95               [ 1]  226 	ld	xh, a
+      0000E8 13 0A            [ 2]  227 	cpw	x, (0x0a, sp)
+      0000EA A6 1F            [ 1]  228 	ld	a, #0x1f
+      0000EC 12 09            [ 1]  229 	sbc	a, (0x09, sp)
+      0000EE 4F               [ 1]  230 	clr	a
+      0000EF 12 08            [ 1]  231 	sbc	a, (0x08, sp)
+      0000F1 25 78            [ 1]  232 	jrc	00111$
+                                    233 ;	HAL/src/util.c: 56: uint8_t tbr = awu_get_timebase(time, LSI_FREQUENCY);
+      0000F3 4B 00            [ 1]  234 	push	#0x00
+      0000F5 4B F4            [ 1]  235 	push	#0xf4
+      0000F7 4B 01            [ 1]  236 	push	#0x01
+      0000F9 4B 00            [ 1]  237 	push	#0x00
+      0000FB 1E 0E            [ 2]  238 	ldw	x, (0x0e, sp)
+      0000FD 89               [ 2]  239 	pushw	x
+      0000FE 1E 0E            [ 2]  240 	ldw	x, (0x0e, sp)
+      000100 89               [ 2]  241 	pushw	x
+      000101 CDr00r13         [ 4]  242 	call	_awu_get_timebase
+      000104 5B 08            [ 2]  243 	addw	sp, #8
+      000106 6B 01            [ 1]  244 	ld	(0x01, sp), a
+                                    245 ;	HAL/src/util.c: 57: uint8_t apr = ((((float)time) / 1e6) * LSI_FREQUENCY) / (1 << (tbr - 1));
+      000108 1E 0A            [ 2]  246 	ldw	x, (0x0a, sp)
+      00010A 89               [ 2]  247 	pushw	x
+      00010B 1E 0A            [ 2]  248 	ldw	x, (0x0a, sp)
+      00010D 89               [ 2]  249 	pushw	x
+      00010E CDr00r00         [ 4]  250 	call	___ulong2fs
+      000111 5B 04            [ 2]  251 	addw	sp, #4
+      000113 4B 00            [ 1]  252 	push	#0x00
+      000115 4B 24            [ 1]  253 	push	#0x24
+      000117 4B 74            [ 1]  254 	push	#0x74
+      000119 4B 49            [ 1]  255 	push	#0x49
+      00011B 89               [ 2]  256 	pushw	x
+      00011C 90 89            [ 2]  257 	pushw	y
+      00011E CDr00r00         [ 4]  258 	call	___fsdiv
+      000121 5B 08            [ 2]  259 	addw	sp, #8
+      000123 4B 00            [ 1]  260 	push	#0x00
+      000125 4B 00            [ 1]  261 	push	#0x00
+      000127 4B FA            [ 1]  262 	push	#0xfa
+      000129 4B 47            [ 1]  263 	push	#0x47
+      00012B 89               [ 2]  264 	pushw	x
+      00012C 90 89            [ 2]  265 	pushw	y
+      00012E CDr00r00         [ 4]  266 	call	___fsmul
+      000131 5B 08            [ 2]  267 	addw	sp, #8
+      000133 1F 04            [ 2]  268 	ldw	(0x04, sp), x
+      000135 17 02            [ 2]  269 	ldw	(0x02, sp), y
+      000137 7B 01            [ 1]  270 	ld	a, (0x01, sp)
+      000139 4A               [ 1]  271 	dec	a
+      00013A 5F               [ 1]  272 	clrw	x
+      00013B 5C               [ 1]  273 	incw	x
+      00013C 4D               [ 1]  274 	tnz	a
+      00013D 27 04            [ 1]  275 	jreq	00127$
+      00013F                        276 00126$:
+      00013F 58               [ 2]  277 	sllw	x
+      000140 4A               [ 1]  278 	dec	a
+      000141 26 FC            [ 1]  279 	jrne	00126$
+      000143                        280 00127$:
+      000143 89               [ 2]  281 	pushw	x
+      000144 CDr00r00         [ 4]  282 	call	___sint2fs
+      000147 5B 02            [ 2]  283 	addw	sp, #2
+      000149 89               [ 2]  284 	pushw	x
+      00014A 90 89            [ 2]  285 	pushw	y
+      00014C 1E 08            [ 2]  286 	ldw	x, (0x08, sp)
+      00014E 89               [ 2]  287 	pushw	x
+      00014F 1E 08            [ 2]  288 	ldw	x, (0x08, sp)
+      000151 89               [ 2]  289 	pushw	x
+      000152 CDr00r00         [ 4]  290 	call	___fsdiv
+      000155 5B 08            [ 2]  291 	addw	sp, #8
+      000157 89               [ 2]  292 	pushw	x
+      000158 90 89            [ 2]  293 	pushw	y
+      00015A CDr00r00         [ 4]  294 	call	___fs2uchar
+      00015D 5B 04            [ 2]  295 	addw	sp, #4
+                                    296 ;	HAL/src/util.c: 58: awu_set_regs(tbr, apr - 2);
+      00015F A0 02            [ 1]  297 	sub	a, #0x02
+      000161 88               [ 1]  298 	push	a
+      000162 7B 02            [ 1]  299 	ld	a, (0x02, sp)
+      000164 88               [ 1]  300 	push	a
+      000165 CDr00rB8         [ 4]  301 	call	_awu_set_regs
+      000168 85               [ 2]  302 	popw	x
+      000169 20 3E            [ 2]  303 	jra	00107$
+                                    304 ;	HAL/src/util.c: 63: while (time > (uint32_t)(1e6 * (uint32_t)2048 * 128 / (float)LSI_FREQUENCY))
+      00016B                        305 00111$:
+      00016B 16 08            [ 2]  306 	ldw	y, (0x08, sp)
+      00016D 17 02            [ 2]  307 	ldw	(0x02, sp), y
+      00016F 1E 0A            [ 2]  308 	ldw	x, (0x0a, sp)
+      000171                        309 00101$:
+      000171 4F               [ 1]  310 	clr	a
+      000172 89               [ 2]  311 	pushw	x
+      000173 11 02            [ 1]  312 	cp	a, (2, sp)
+      000175 85               [ 2]  313 	popw	x
+      000176 A6 40            [ 1]  314 	ld	a, #0x40
+      000178 89               [ 2]  315 	pushw	x
+      000179 12 01            [ 1]  316 	sbc	a, (1, sp)
+      00017B 85               [ 2]  317 	popw	x
+      00017C A6 1F            [ 1]  318 	ld	a, #0x1f
+      00017E 12 03            [ 1]  319 	sbc	a, (0x03, sp)
+      000180 4F               [ 1]  320 	clr	a
+      000181 12 02            [ 1]  321 	sbc	a, (0x02, sp)
+      000183 24 1B            [ 1]  322 	jrnc	00103$
+                                    323 ;	HAL/src/util.c: 65: awu_set_regs(13, 62);
+      000185 89               [ 2]  324 	pushw	x
+      000186 4B 3E            [ 1]  325 	push	#0x3e
+      000188 4B 0D            [ 1]  326 	push	#0x0d
+      00018A CDr00rB8         [ 4]  327 	call	_awu_set_regs
+      00018D 85               [ 2]  328 	popw	x
+      00018E 85               [ 2]  329 	popw	x
+                                    330 ;	HAL/src/util.c: 66: time -= (uint32_t)(mul * 1e6 / LSI_FREQUENCY);
+      00018F 1D 40 00         [ 2]  331 	subw	x, #0x4000
+      000192 7B 03            [ 1]  332 	ld	a, (0x03, sp)
+      000194 A2 1F            [ 1]  333 	sbc	a, #0x1f
+      000196 6B 03            [ 1]  334 	ld	(0x03, sp), a
+      000198 7B 02            [ 1]  335 	ld	a, (0x02, sp)
+      00019A A2 00            [ 1]  336 	sbc	a, #0x00
+      00019C 6B 02            [ 1]  337 	ld	(0x02, sp), a
+      00019E 20 D1            [ 2]  338 	jra	00101$
+      0001A0                        339 00103$:
+                                    340 ;	HAL/src/util.c: 68: awu_sleep(time);
+      0001A0 89               [ 2]  341 	pushw	x
+      0001A1 1E 04            [ 2]  342 	ldw	x, (0x04, sp)
+      0001A3 89               [ 2]  343 	pushw	x
+      0001A4 CDr00rE2         [ 4]  344 	call	_awu_sleep
+      0001A7 5B 04            [ 2]  345 	addw	sp, #4
+      0001A9                        346 00107$:
+                                    347 ;	HAL/src/util.c: 70: }
+      0001A9 5B 05            [ 2]  348 	addw	sp, #5
+      0001AB 81               [ 4]  349 	ret
+                                    350 	.area CODE
+                                    351 	.area CONST
+                                    352 	.area INITIALIZER
+                                    353 	.area CABS (ABS)

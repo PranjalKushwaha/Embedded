@@ -1,0 +1,107 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.0 #11528 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module spi
+                                      6 	.optsdcc -mstm8
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _init_nrf_ce_csn
+                                     12 	.globl _spi_init
+                                     13 	.globl _spi_transceiver
+                                     14 ;--------------------------------------------------------
+                                     15 ; ram data
+                                     16 ;--------------------------------------------------------
+                                     17 	.area DATA
+                                     18 ;--------------------------------------------------------
+                                     19 ; ram data
+                                     20 ;--------------------------------------------------------
+                                     21 	.area INITIALIZED
+                                     22 ;--------------------------------------------------------
+                                     23 ; absolute external ram data
+                                     24 ;--------------------------------------------------------
+                                     25 	.area DABS (ABS)
+                                     26 
+                                     27 ; default segment ordering for linker
+                                     28 	.area HOME
+                                     29 	.area GSINIT
+                                     30 	.area GSFINAL
+                                     31 	.area CONST
+                                     32 	.area INITIALIZER
+                                     33 	.area CODE
+                                     34 
+                                     35 ;--------------------------------------------------------
+                                     36 ; global & static initialisations
+                                     37 ;--------------------------------------------------------
+                                     38 	.area HOME
+                                     39 	.area GSINIT
+                                     40 	.area GSFINAL
+                                     41 	.area GSINIT
+                                     42 ;--------------------------------------------------------
+                                     43 ; Home
+                                     44 ;--------------------------------------------------------
+                                     45 	.area HOME
+                                     46 	.area HOME
+                                     47 ;--------------------------------------------------------
+                                     48 ; code
+                                     49 ;--------------------------------------------------------
+                                     50 	.area CODE
+                                     51 ;	HAL/src/spi.c: 5: void init_nrf_ce_csn()
+                                     52 ;	-----------------------------------------
+                                     53 ;	 function init_nrf_ce_csn
+                                     54 ;	-----------------------------------------
+      008413                         55 _init_nrf_ce_csn:
+                                     56 ;	HAL/src/spi.c: 8: PD_DDR |= 1 << SPI_CE;
+      008413 72 18 50 11      [ 1]   57 	bset	20497, #4
+                                     58 ;	HAL/src/spi.c: 9: PD_CR1 |= 1 << SPI_CE;
+      008417 72 18 50 12      [ 1]   59 	bset	20498, #4
+                                     60 ;	HAL/src/spi.c: 10: PD_ODR &= ~(1 << SPI_CE);
+      00841B 72 19 50 0F      [ 1]   61 	bres	20495, #4
+                                     62 ;	HAL/src/spi.c: 13: PA_DDR |= 1 << SPI_NSS;
+      00841F 72 16 50 02      [ 1]   63 	bset	20482, #3
+                                     64 ;	HAL/src/spi.c: 14: PA_CR1 |= 1 << SPI_NSS;
+      008423 72 16 50 03      [ 1]   65 	bset	20483, #3
+                                     66 ;	HAL/src/spi.c: 15: PA_ODR &= ~(1 << SPI_NSS);
+      008427 72 17 50 00      [ 1]   67 	bres	20480, #3
+                                     68 ;	HAL/src/spi.c: 16: }
+      00842B 81               [ 4]   69 	ret
+                                     70 ;	HAL/src/spi.c: 38: void spi_init()
+                                     71 ;	-----------------------------------------
+                                     72 ;	 function spi_init
+                                     73 ;	-----------------------------------------
+      00842C                         74 _spi_init:
+                                     75 ;	HAL/src/spi.c: 40: SPI_CR1 |= SPI_CR1_BR(1);
+      00842C 72 16 52 00      [ 1]   76 	bset	20992, #3
+                                     77 ;	HAL/src/spi.c: 41: SPI_CR1 |= SPI_CR1_SPE;
+      008430 72 1C 52 00      [ 1]   78 	bset	20992, #6
+                                     79 ;	HAL/src/spi.c: 42: SPI_CR1 |= SPI_CR1_MSTR;
+      008434 C6 52 00         [ 1]   80 	ld	a, 0x5200
+      008437 AA 04            [ 1]   81 	or	a, #0x04
+      008439 C7 52 00         [ 1]   82 	ld	0x5200, a
+                                     83 ;	HAL/src/spi.c: 43: init_nrf_ce_csn();
+                                     84 ;	HAL/src/spi.c: 44: }
+      00843C CC 84 13         [ 2]   85 	jp	_init_nrf_ce_csn
+                                     86 ;	HAL/src/spi.c: 46: uint8_t spi_transceiver(uint8_t data)
+                                     87 ;	-----------------------------------------
+                                     88 ;	 function spi_transceiver
+                                     89 ;	-----------------------------------------
+      00843F                         90 _spi_transceiver:
+                                     91 ;	HAL/src/spi.c: 48: SPI_DR = data;
+      00843F AE 52 04         [ 2]   92 	ldw	x, #0x5204
+      008442 7B 03            [ 1]   93 	ld	a, (0x03, sp)
+      008444 F7               [ 1]   94 	ld	(x), a
+                                     95 ;	HAL/src/spi.c: 49: while (!(SPI_SR & SPI_SR_RxNE))
+      008445                         96 00101$:
+      008445 C6 52 03         [ 1]   97 	ld	a, 0x5203
+      008448 44               [ 1]   98 	srl	a
+      008449 24 FA            [ 1]   99 	jrnc	00101$
+                                    100 ;	HAL/src/spi.c: 51: return SPI_DR;
+      00844B C6 52 04         [ 1]  101 	ld	a, 0x5204
+                                    102 ;	HAL/src/spi.c: 52: }
+      00844E 81               [ 4]  103 	ret
+                                    104 	.area CODE
+                                    105 	.area CONST
+                                    106 	.area INITIALIZER
+                                    107 	.area CABS (ABS)

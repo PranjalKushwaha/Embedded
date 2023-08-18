@@ -1,0 +1,486 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              02/14/2023 11:25:29 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\MAIN.obj
+COMPILER INVOKED BY: Z:\home\pranjal\megawin\C51\BIN\C51.exe Source\MAIN.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Source;.\So
+                    -urce\Driver\Include;.\Source\Driver\Source;.\Source\Middleware\Include;.\Source\Middleware\Source) DEBUG OBJECTEXTEND PR
+                    -INT(.\Listings\MAIN.lst) TABS(2) OBJECT(.\Objects\MAIN.obj)
+
+line level    source
+
+   1          #define _MAIN_C
+   2          
+   3          #include <Intrins.h>
+   4          #include <Absacc.h>
+   5          
+   6          //#include <stdio.h>  // for printf
+   7          
+   8          #include "./REG_MG82F6D17.h"
+   9          #include "./TYPEDEF.h"
+  10          #include "./MG82F6D17_CONFIG.h"
+  11          
+  12          #define TWI0_CLK_SYSCLK_32  2 // SYSCLK/32
+  13          #define MCU_SYSCLK    12000000
+  14          #define MCU_CPUCLK    (MCU_SYSCLK)
+  15          
+  16          #define TIMER_1T_1ms_TH ((65536-(u16)(float)(1000*((float)(MCU_SYSCLK)/(float)(1000000)))) /256)      
+  17          #define TIMER_1T_1ms_TL ((65536-(u16)(float)(1000*((float)(MCU_SYSCLK)/(float)(1000000)))) %256)
+  18          
+  19          #define TIMER_12T_1ms_TH  ((65536-(u16)(float)(1000*((float)(MCU_SYSCLK)/(float)(12000000)))) /256)       
+  20          #define TIMER_12T_1ms_TL  ((65536-(u16)(float)(1000*((float)(MCU_SYSCLK)/(float)(12000000)))) %256)
+  21          
+  22          #define TIMER_12T_10ms_TH ((65536-(u16)(float)(10000*((float)(MCU_SYSCLK)/(float)(12000000)))) /256)      
+  23          #define TIMER_12T_10ms_TL ((65536-(u16)(float)(10000*((float)(MCU_SYSCLK)/(float)(12000000)))) %256)
+  24          
+  25          
+  26          #define PORT_SetP4OpenDrainPu(x)      P4M0=P4M0|(x); SFRPI=2;P4M1=P4M1|(x) ;SFRPI=0 
+  27          #define PORT_SetP2PushPull(x)       P2M0=P2M0|(x); SFRPI=1;P2M1=P2M1&(~(x));SFRPI=0
+  28          #define CLK_SetCKCON0(x)          CKCON0=x 
+  29          #define TWI0_Clear()        SICON=0
+  30          #define TWI0_SetClock(x)      SICON=(SICON&B01111100)|((x&0x03)|((x<<5)&B10000000))
+  31          #define TWI0_SetUseP40P41()     SFRPI=0;AUXR3=(AUXR3&(~(TWIPS1|TWIPS0)))
+  32          #define TWI0_Enable()           SICON=SICON|(ENSI)
+  33          #define TM_SetT0Mode_1_16BIT_TIMER()      TMOD=(TMOD&(~(T0M0|T0M1)))|(T0M0)
+  34          #define TM_SetT0Clock_SYSCLKDiv12()       AUXR3=(AUXR3&(~T0XL));AUXR2=(AUXR2&(~T0X12));TMOD=(TMOD&(~T0C_T))
+  35          #define TM_SetT0Gate_Disable()          TMOD=TMOD&(~T0GATE)
+  36          #define TM_SetT0LowByte(x)      TL0=x
+  37          #define TM_SetT0HighByte(x)     TH0=x
+  38          #define TM_EnableT0()     TR0=1
+  39          
+  40          BYTE  TWI0OvTime;
+  41          
+  42          char putchar(char c)
+  43          {
+  44   1        bit bES;
+  45   1        bES = ES0;
+  46   1        ES0 = 0;
+  47   1        S0BUF = c;
+  48   1        while (TI0 == 0)
+  49   1          ;
+  50   1        TI0 = 0;
+  51   1        ES0 = bES;
+  52   1        return 0;
+  53   1      }
+C51 COMPILER V9.60.7.0   MAIN                                                              02/14/2023 11:25:29 PAGE 2   
+
+  54          
+  55          void DelayXus(u8 xUs)
+  56          {
+  57   1        while(xUs!=0)
+  58   1        {
+  59   2      #if (MCU_CPUCLK>=11059200)
+  60   2          _nop_();
+  61   2      #endif
+  62   2      #if (MCU_CPUCLK>=14745600)
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+              #endif
+  68   2      #if (MCU_CPUCLK>=16000000)
+                  _nop_();
+              #endif
+  71   2      
+  72   2      #if (MCU_CPUCLK>=22118400)
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+              #endif
+  80   2      #if (MCU_CPUCLK>=24000000)
+                  _nop_();
+                  _nop_();
+              #endif    
+  84   2      #if (MCU_CPUCLK>=29491200)
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+                  _nop_();
+              #endif
+  92   2      #if (MCU_CPUCLK>=32000000)
+                  _nop_();
+                  _nop_();
+              #endif
+  96   2      
+  97   2          xUs--;
+  98   2        }
+  99   1      }
+ 100          
+ 101          /*************************************************
+ 102          *Function:      void DelayXms(u16 xMs)
+ 103          *Description:    dealy,unit:ms
+ 104          *Input:         u16 xMs -> *1ms  (1~65535)
+ 105          *Output:     
+ 106          *************************************************/
+ 107          void DelayXms(u16 xMs)
+ 108          {
+ 109   1        while(xMs!=0)
+ 110   1        {
+ 111   2          DelayXus(200);
+ 112   2          DelayXus(200);
+ 113   2          DelayXus(200);
+ 114   2          DelayXus(200);
+ 115   2          DelayXus(200);
+C51 COMPILER V9.60.7.0   MAIN                                                              02/14/2023 11:25:29 PAGE 3   
+
+ 116   2          xMs--;
+ 117   2          
+ 118   2        }
+ 119   1      }
+ 120          
+ 121          BYTE TWI0_WriteBuf(BYTE DevAddr,u16 RegStartAddr,BYTE *pBuf,BYTE Len)
+ 122          {
+ 123   1        BYTE i;
+ 124   1        BYTE Flag;
+ 125   1        Flag=1;
+ 126   1      
+ 127   1        SICON |=STA;            // Send START
+ 128   1        TWI0OvTime=5;
+ 129   1        SICON &=~SI;      
+ 130   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_WRITE_ERR;}   // wait completed, if time overflow,then r
+             -eturn fail.
+ 131   1        SICON &=~STA;
+ 132   1      
+ 133   1        SICON=SICON|(AA);    
+ 134   1      
+ 135   1        Flag++;
+ 136   1        SIDAT = DevAddr&0xFE;       // send Slave Device address 
+ 137   1        TWI0OvTime=5;
+ 138   1        SICON &=~SI;      
+ 139   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_WRITE_ERR;}   // wait completed, if time overflow,then r
+             -eturn fail.
+ 140   1      
+ 141   1        Flag++;
+ 142   1        SIDAT = HIBYTE(RegStartAddr);   // send Slave Data address high
+ 143   1        TWI0OvTime=5;
+ 144   1        SICON &=~SI;      
+ 145   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_WRITE_ERR;}   // wait completed, if time overflow,then r
+             -eturn fail.
+ 146   1      
+ 147   1        Flag++;
+ 148   1        SIDAT = LOBYTE(RegStartAddr);   // send Slave Data address low
+ 149   1        TWI0OvTime=5;
+ 150   1        SICON &=~SI;      
+ 151   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_WRITE_ERR;}   // wait completed, if time overflow,then r
+             -eturn fail.
+ 152   1      
+ 153   1      
+ 154   1        Flag++;
+ 155   1        i=0;
+ 156   1        while(i<Len)
+ 157   1        {
+ 158   2          if(i==(Len-1))
+ 159   2          {
+ 160   3            SICON=SICON&(~AA);     
+ 161   3          }
+ 162   2          else
+ 163   2          {
+ 164   3            SICON=SICON|(AA);    
+ 165   3          }
+ 166   2          SIDAT=pBuf[i];      // send data
+ 167   2          TWI0OvTime=5;
+ 168   2          SICON &=~SI;      
+ 169   2          while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_WRITE_ERR;}   // wait completed, if time overflow,then 
+             -return fail.
+ 170   2          i++;
+ 171   2        }
+ 172   1        
+C51 COMPILER V9.60.7.0   MAIN                                                              02/14/2023 11:25:29 PAGE 4   
+
+ 173   1        Flag++;
+ 174   1        SICON |= STO;       // send STOP
+ 175   1        TWI0OvTime=5;
+ 176   1        SICON &=~SI;      
+ 177   1        while((SICON&STO)==STO){if(TWI0OvTime==0) goto TWI0_WRITE_ERR;}   // wait completed, if time overflow,then
+             - return fail.
+ 178   1        SICON &=~STO;
+ 179   1      
+ 180   1        SICON = SICON &(~SI);   // clear interrupt flag
+ 181   1      
+ 182   1        return 0;
+ 183   1        
+ 184   1      TWI0_WRITE_ERR:
+ 185   1        return Flag;
+ 186   1      }
+ 187          
+ 188          
+ 189          /***********************************************************************************
+ 190          *Function:    BYTE TWI0_ReadBuf(BYTE DevAddr,u16 RegStartAddr,BYTE *pBuf,BYTE Len)
+ 191          *Description:
+ 192          *       I2C Read data from Slave
+ 193          *Input: 
+ 194          *       BYTE DevAddr: Slave Device address
+ 195          *       u16 RegStartAddr: Slave data address
+ 196          *       BYTE *pBuf: Address of the buffer to be save
+ 197          *       BYTE Len: Data length
+ 198          *Output:
+ 199          *       BYTE: 0->succeed, other->failure
+ 200          *************************************************************************************/
+ 201          BYTE TWI0_ReadBuf(BYTE DevAddr,u16 RegStartAddr,BYTE *pBuf,BYTE Len)
+ 202          {
+ 203   1        BYTE i;
+ 204   1        BYTE Flag;
+ 205   1        Flag=1;
+ 206   1        
+ 207   1        SICON |=STA;        // send START
+ 208   1        TWI0OvTime=5;
+ 209   1        SICON &=~SI;      
+ 210   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_READ_ERR;}    // wait completed, if time overflow,then re
+             -turn fail.
+ 211   1        SICON &=~STA;
+ 212   1      
+ 213   1        Flag++;
+ 214   1        SICON=SICON|(AA);    
+ 215   1      
+ 216   1        SIDAT = DevAddr&0xFE;   // send Slave Device address 
+ 217   1        TWI0OvTime=5;
+ 218   1        SICON &=~SI;      
+ 219   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_READ_ERR;}    // wait completed, if time overflow,then re
+             -turn fail.
+ 220   1      
+ 221   1        Flag++;
+ 222   1        SIDAT = HIBYTE(RegStartAddr);   // send Slave Data address high
+ 223   1        TWI0OvTime=5;
+ 224   1        SICON &=~SI;      
+ 225   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_READ_ERR;}    // wait completed, if time overflow,then re
+             -turn fail.
+ 226   1      
+ 227   1        Flag++;
+ 228   1        SIDAT = LOBYTE(RegStartAddr);   // send Slave Data address low
+ 229   1        TWI0OvTime=5;
+ 230   1        SICON &=~SI;      
+C51 COMPILER V9.60.7.0   MAIN                                                              02/14/2023 11:25:29 PAGE 5   
+
+ 231   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_READ_ERR;}    // wait completed, if time overflow,then re
+             -turn fail.
+ 232   1      
+ 233   1        Flag++;
+ 234   1        SICON |= STA;       // send START again
+ 235   1        TWI0OvTime=5;
+ 236   1        SICON &=~SI;      
+ 237   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_READ_ERR;}    // wait completed, if time overflow,then re
+             -turn fail.
+ 238   1        SICON &=~STA;
+ 239   1      
+ 240   1        Flag++;
+ 241   1        SIDAT = DevAddr|0x01;   // send Slave Device address ,enter read mode
+ 242   1        TWI0OvTime=5;
+ 243   1        SICON &=~SI;      
+ 244   1        while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_READ_ERR;}    // wait completed, if time overflow,then re
+             -turn fail.
+ 245   1      
+ 246   1        Flag++;
+ 247   1        i=0;
+ 248   1        while(i<Len)
+ 249   1        {
+ 250   2          if(i==(Len-1))
+ 251   2          {
+ 252   3            SICON=SICON&(~AA);     
+ 253   3          }
+ 254   2          else
+ 255   2          {
+ 256   3            SICON=SICON|(AA);    
+ 257   3          }
+ 258   2          TWI0OvTime=5;
+ 259   2          SICON &=~SI;      
+ 260   2          while((SICON&SI)!=SI){if(TWI0OvTime==0) goto TWI0_READ_ERR;}    // wait completed, if time overflow,then r
+             -eturn fail.
+ 261   2          pBuf[i] = SIDAT;      // read data
+ 262   2          i++;
+ 263   2        }
+ 264   1        
+ 265   1        Flag++;
+ 266   1        SICON |= STO;       // send STOP
+ 267   1        TWI0OvTime=5;
+ 268   1        SICON &=~SI;      
+ 269   1        while((SICON&STO)==STO){if(TWI0OvTime==0) goto TWI0_READ_ERR;}    // wait completed, if time overflow,then 
+             -return fail.
+ 270   1        SICON &=~STO;
+ 271   1      
+ 272   1        SICON = SICON &(~SI);   // clear interrupt flag
+ 273   1      
+ 274   1        return 0;
+ 275   1        
+ 276   1      TWI0_READ_ERR:
+ 277   1        SICON |= STO;       // send STOP
+ 278   1        SICON = SICON &(~SI);   // clear interrupt flag
+ 279   1        return Flag;
+ 280   1      }
+ 281          
+ 282          void InitPort(void)
+ 283          {
+ 284   1        PORT_SetP2PushPull(BIT2|BIT4|BIT6);         // Set P22,P24,P26 as Push-Pull,For LED.
+ 285   1        PORT_SetP4OpenDrainPu(BIT0|BIT1);         // Set P40,P41as open-drain with pull-high,For I2C
+ 286   1      }
+ 287          void InitClock(void)
+C51 COMPILER V9.60.7.0   MAIN                                                              02/14/2023 11:25:29 PAGE 6   
+
+ 288          {
+ 289   1      #if (MCU_SYSCLK==11059200)
+              #if (MCU_CPUCLK==MCU_SYSCLK)
+                // SysClk=11.0592MHz CpuClk=11.0592MHz
+                CLK_SetCKCON0(IHRCO_110592MHz|CPUCLK_SYSCLK_DIV_1|SYSCLK_MCKDO_DIV_1);
+                
+              #else
+                // SysClk=11.0592MHz CpuClk=5.5296MHz
+                CLK_SetCKCON0(IHRCO_110592MHz|CPUCLK_SYSCLK_DIV_2|SYSCLK_MCKDO_DIV_1);
+              #endif
+              #endif
+ 299   1      
+ 300   1      #if (MCU_SYSCLK==12000000)
+ 301   1      #if (MCU_CPUCLK==MCU_SYSCLK)
+ 302   1        // SysClk=12MHz CpuClk=12MHz
+ 303   1        CLK_SetCKCON0(IHRCO_12MHz|CPUCLK_SYSCLK_DIV_1|SYSCLK_MCKDO_DIV_1);
+ 304   1        
+ 305   1      #else
+                // SysClk=12MHz CpuClk=6MHz
+                CLK_SetCKCON0(IHRCO_12MHz|CPUCLK_SYSCLK_DIV_2|SYSCLK_MCKDO_DIV_1);
+              #endif
+ 309   1      #endif
+ 310   1      
+ 311   1      #if (MCU_SYSCLK==22118400)
+              #if (MCU_CPUCLK==MCU_SYSCLK)
+                // SysClk=22.1184MHz CpuClk=22.1184MHz
+                CLK_SetCKCON0(IHRCO_110592MHz|CPUCLK_SYSCLK_DIV_1|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx4, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X4|OSCIn_IHRCO);
+              #else
+                // SysClk=22.1184MHz CpuClk=11.0592MHz
+                CLK_SetCKCON0(IHRCO_110592MHz|CPUCLK_SYSCLK_DIV_2|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx4, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X4|OSCIn_IHRCO);
+              #endif
+              #endif
+ 326   1      
+ 327   1      #if (MCU_SYSCLK==24000000)
+              #if (MCU_CPUCLK==MCU_SYSCLK)
+                // SysClk=24MHz CpuClk=24MHz
+                CLK_SetCKCON0(IHRCO_12MHz|CPUCLK_SYSCLK_DIV_1|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx4, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X4|OSCIn_IHRCO);
+              #else
+                // SysClk=24MHz CpuClk=12MHz
+                CLK_SetCKCON0(IHRCO_12MHz|CPUCLK_SYSCLK_DIV_2|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx4, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X4|OSCIn_IHRCO);
+              #endif
+              #endif
+ 342   1      
+ 343   1      #if (MCU_SYSCLK==29491200)
+              #if (MCU_CPUCLK==MCU_SYSCLK)
+                // Cpuclk high speed
+                CLK_SetCpuCLK_HighSpeed();
+                // SysClk=29.491200MHz CpuClk=29.491200MHz
+                CLK_SetCKCON0(IHRCO_110592MHz|CPUCLK_SYSCLK_DIV_1|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+C51 COMPILER V9.60.7.0   MAIN                                                              02/14/2023 11:25:29 PAGE 7   
+
+                // IHRCO, MCK=CKMIx5.33, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X533|OSCIn_IHRCO);
+              #else
+                // SysClk=29.491200MHz CpuClk=14.7456MHz
+                CLK_SetCKCON0(IHRCO_110592MHz|CPUCLK_SYSCLK_DIV_2|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx5.33, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X533|OSCIn_IHRCO);
+              #endif
+              #endif
+ 360   1      
+ 361   1      #if (MCU_SYSCLK==32000000)
+              #if (MCU_CPUCLK==MCU_SYSCLK)
+                // Cpuclk high speed
+                CLK_SetCpuCLK_HighSpeed();
+                // SysClk=32MHz CpuClk=32MHz
+                CLK_SetCKCON0(IHRCO_12MHz|CPUCLK_SYSCLK_DIV_1|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx5.33, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X533|OSCIn_IHRCO);
+              #else
+                // SysClk=32MHz CpuClk=16MHz
+                CLK_SetCKCON0(IHRCO_12MHz|CPUCLK_SYSCLK_DIV_2|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx5.33, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X533|OSCIn_IHRCO);
+              #endif
+              #endif
+ 378   1      
+ 379   1      #if (MCU_SYSCLK==44236800)
+                // SysClk=44.2368MHz CpuClk=22.1184MHz
+                CLK_SetCKCON0(IHRCO_110592MHz|CPUCLK_SYSCLK_DIV_1|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx8, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X8|OSCIn_IHRCO);
+              #endif
+ 386   1      
+ 387   1      #if (MCU_SYSCLK==48000000)
+                // SysClk=48MHz CpuClk=24MHz
+                CLK_SetCKCON0(IHRCO_12MHz|CPUCLK_SYSCLK_DIV_2|SYSCLK_MCKDO_DIV_1|ENABLE_CKM|CKM_OSCIN_DIV_2);
+                DelayXus(100);
+                // IHRCO, MCK=CKMIx8, OSCin=IHRCO
+                CLK_SetCKCON2(ENABLE_IHRCO|MCK_CKMI_X8|OSCIn_IHRCO);
+              #endif
+ 394   1      
+ 395   1        // P60 Output MCK/4
+ 396   1        //CLK_P60OC_MCKDiv4();
+ 397   1      }
+ 398          
+ 399          void InitTWI0()
+ 400          {
+ 401   1        TWI0_Clear();
+ 402   1        TWI0_SetClock(TWI0_CLK_SYSCLK_32);
+ 403   1        TWI0_SetUseP40P41();
+ 404   1        TWI0_Enable();
+ 405   1      }
+ 406          
+ 407          void InitTimer0(void)
+ 408          {
+ 409   1        TM_SetT0Mode_1_16BIT_TIMER();     // TIMER0 Mode: 16-bit
+ 410   1        TM_SetT0Clock_SYSCLKDiv12();      // TIMER0 Clock source: SYSCLK/12
+ 411   1        TM_SetT0Gate_Disable();         // TIMER0 disable gate
+C51 COMPILER V9.60.7.0   MAIN                                                              02/14/2023 11:25:29 PAGE 8   
+
+ 412   1        
+ 413   1        TM_SetT0LowByte(TIMER_12T_1ms_TL);    // Sets TL0 value
+ 414   1        TM_SetT0HighByte(TIMER_12T_1ms_TH);   // Sets TH0 value
+ 415   1        
+ 416   1        TM_EnableT0();              // Enable TIMER0
+ 417   1      }
+ 418          
+ 419          
+ 420          void main()
+ 421          {
+ 422   1        System_Init();
+ 423   1        InitPort();
+ 424   1        //InitClock();
+ 425   1        InitTWI0();
+ 426   1        //InitTimer0();
+ 427   1        //__DRV_URT0_Mode_Easy_Select(UART0_8BIT_CONFIG18);
+ 428   1        while(1)
+ 429   1        {
+ 430   2          DelayXms(500);
+ 431   2          printf("hello there");
+ 432   2        }
+ 433   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    624    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1      14
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

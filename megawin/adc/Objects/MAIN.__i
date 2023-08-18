@@ -1,0 +1,1 @@
+"Source\MAIN.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\Source;.\Source\Driver\Include;.\Source\Driver\Source;.\Source\Middleware\Include;.\Source\Middleware\Source) DEBUG OBJECTEXTEND PRINT(.\Listings\MAIN.lst) TABS (2) OBJECT(.\Objects\MAIN.obj)

@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "bit": "c",
+        "util.h": "c",
+        "nrf24.h": "c",
+        "stm8.h": "c",
+        "flash.h": "c",
+        "spi.h": "c"
+    }
+}

@@ -1,0 +1,763 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.0 #11528 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module nrf24
+                                      6 	.optsdcc -mstm8
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _nrf24_status_reset
+                                     12 	.globl _nrf24_listen
+                                     13 	.globl _SPI_Send
+                                     14 	.globl _spi_transceiver
+                                     15 	.globl _spi_init
+                                     16 	.globl _write_buffer
+                                     17 	.globl _data_buffer
+                                     18 	.globl _nrf24_read_register
+                                     19 	.globl _nrf24_write_register
+                                     20 	.globl _nrf24_setup
+                                     21 	.globl _nrf24_get_data
+                                     22 	.globl _nrf24_available
+                                     23 	.globl _nrf24_getDynamicPayloadSize
+                                     24 	.globl _nrf24_startListening
+                                     25 	.globl _nrf24_stopListening
+                                     26 	.globl _radio_power_up
+                                     27 	.globl _radio_power_down
+                                     28 	.globl _radio_init
+                                     29 	.globl _radio_recieve
+                                     30 	.globl _radio_send
+                                     31 ;--------------------------------------------------------
+                                     32 ; ram data
+                                     33 ;--------------------------------------------------------
+                                     34 	.area DATA
+      000000                         35 _data_buffer::
+      000000                         36 	.ds 33
+      000021                         37 _write_buffer::
+      000021                         38 	.ds 33
+                                     39 ;--------------------------------------------------------
+                                     40 ; ram data
+                                     41 ;--------------------------------------------------------
+                                     42 	.area INITIALIZED
+                                     43 ;--------------------------------------------------------
+                                     44 ; absolute external ram data
+                                     45 ;--------------------------------------------------------
+                                     46 	.area DABS (ABS)
+                                     47 
+                                     48 ; default segment ordering for linker
+                                     49 	.area HOME
+                                     50 	.area GSINIT
+                                     51 	.area GSFINAL
+                                     52 	.area CONST
+                                     53 	.area INITIALIZER
+                                     54 	.area CODE
+                                     55 
+                                     56 ;--------------------------------------------------------
+                                     57 ; global & static initialisations
+                                     58 ;--------------------------------------------------------
+                                     59 	.area HOME
+                                     60 	.area GSINIT
+                                     61 	.area GSFINAL
+                                     62 	.area GSINIT
+                                     63 ;--------------------------------------------------------
+                                     64 ; Home
+                                     65 ;--------------------------------------------------------
+                                     66 	.area HOME
+                                     67 	.area HOME
+                                     68 ;--------------------------------------------------------
+                                     69 ; code
+                                     70 ;--------------------------------------------------------
+                                     71 	.area CODE
+                                     72 ;	HAL/src/nrf24.c: 11: void SPI_Send(unsigned char *data_pack, uint16_t len)
+                                     73 ;	-----------------------------------------
+                                     74 ;	 function SPI_Send
+                                     75 ;	-----------------------------------------
+      000000                         76 _SPI_Send:
+                                     77 ;	HAL/src/nrf24.c: 14: nrf_nss_low();
+      000000 72 17 50 00      [ 1]   78 	bres	20480, #3
+      000004 90 5F            [ 1]   79 	clrw	y
+      000006                         80 00103$:
+                                     81 ;	HAL/src/nrf24.c: 15: for (; i < len; i++)
+                                     82 ;	HAL/src/nrf24.c: 17: data_pack[i] = spi_transceiver(data_pack[i]);
+      000006 93               [ 1]   83 	ldw	x, y
+      000007 13 05            [ 2]   84 	cpw	x, (0x05, sp)
+      000009 24 15            [ 1]   85 	jrnc	00101$
+      00000B 72 FB 03         [ 2]   86 	addw	x, (0x03, sp)
+      00000E F6               [ 1]   87 	ld	a, (x)
+      00000F 89               [ 2]   88 	pushw	x
+      000010 90 89            [ 2]   89 	pushw	y
+      000012 88               [ 1]   90 	push	a
+      000013 CDr00r00         [ 4]   91 	call	_spi_transceiver
+      000016 5B 01            [ 2]   92 	addw	sp, #1
+      000018 90 85            [ 2]   93 	popw	y
+      00001A 85               [ 2]   94 	popw	x
+      00001B F7               [ 1]   95 	ld	(x), a
+                                     96 ;	HAL/src/nrf24.c: 15: for (; i < len; i++)
+      00001C 90 5C            [ 1]   97 	incw	y
+      00001E 20 E6            [ 2]   98 	jra	00103$
+      000020                         99 00101$:
+                                    100 ;	HAL/src/nrf24.c: 19: nrf_nss_high();
+      000020 72 16 50 00      [ 1]  101 	bset	20480, #3
+                                    102 ;	HAL/src/nrf24.c: 20: }
+      000024 81               [ 4]  103 	ret
+                                    104 ;	HAL/src/nrf24.c: 24: void nrf24_read_register(uint8_t reg, uint8_t len)
+                                    105 ;	-----------------------------------------
+                                    106 ;	 function nrf24_read_register
+                                    107 ;	-----------------------------------------
+      000025                        108 _nrf24_read_register:
+      000025 89               [ 2]  109 	pushw	x
+                                    110 ;	HAL/src/nrf24.c: 27: data_buffer[0] = R_REGISTER | (REGISTER_MASK & reg);
+      000026 7B 05            [ 1]  111 	ld	a, (0x05, sp)
+      000028 A4 1F            [ 1]  112 	and	a, #0x1f
+      00002A C7u00u00         [ 1]  113 	ld	_data_buffer+0, a
+                                    114 ;	HAL/src/nrf24.c: 28: for (i = 1; i <= len; i++)
+      00002D 5F               [ 1]  115 	clrw	x
+      00002E 5C               [ 1]  116 	incw	x
+      00002F                        117 00103$:
+      00002F 7B 06            [ 1]  118 	ld	a, (0x06, sp)
+      000031 6B 02            [ 1]  119 	ld	(0x02, sp), a
+      000033 0F 01            [ 1]  120 	clr	(0x01, sp)
+      000035 13 01            [ 2]  121 	cpw	x, (0x01, sp)
+      000037 2C 08            [ 1]  122 	jrsgt	00101$
+                                    123 ;	HAL/src/nrf24.c: 30: data_buffer[i] = NRF24_NOP;
+      000039 A6 FF            [ 1]  124 	ld	a, #0xff
+      00003B D7u00u00         [ 1]  125 	ld	((_data_buffer + 0), x), a
+                                    126 ;	HAL/src/nrf24.c: 28: for (i = 1; i <= len; i++)
+      00003E 5C               [ 1]  127 	incw	x
+      00003F 20 EE            [ 2]  128 	jra	00103$
+      000041                        129 00101$:
+                                    130 ;	HAL/src/nrf24.c: 32: SPI_Send(data_buffer, len + 1);
+      000041 1E 01            [ 2]  131 	ldw	x, (0x01, sp)
+      000043 5C               [ 1]  132 	incw	x
+      000044 89               [ 2]  133 	pushw	x
+      000045 4Br00            [ 1]  134 	push	#<(_data_buffer + 0)
+      000047 4Bs00            [ 1]  135 	push	#((_data_buffer + 0) >> 8)
+      000049 CDr00r00         [ 4]  136 	call	_SPI_Send
+                                    137 ;	HAL/src/nrf24.c: 33: }
+      00004C 5B 06            [ 2]  138 	addw	sp, #6
+      00004E 81               [ 4]  139 	ret
+                                    140 ;	HAL/src/nrf24.c: 35: void nrf24_write_register(uint8_t reg, uint8_t len)
+                                    141 ;	-----------------------------------------
+                                    142 ;	 function nrf24_write_register
+                                    143 ;	-----------------------------------------
+      00004F                        144 _nrf24_write_register:
+      00004F 89               [ 2]  145 	pushw	x
+                                    146 ;	HAL/src/nrf24.c: 38: data_buffer[0] = W_REGISTER | (REGISTER_MASK & reg);
+      000050 7B 05            [ 1]  147 	ld	a, (0x05, sp)
+      000052 A4 1F            [ 1]  148 	and	a, #0x1f
+      000054 AA 20            [ 1]  149 	or	a, #0x20
+      000056 C7u00u00         [ 1]  150 	ld	_data_buffer+0, a
+                                    151 ;	HAL/src/nrf24.c: 39: for (i = 1; i <= len; i++)
+      000059 AE 00 01         [ 2]  152 	ldw	x, #0x0001
+      00005C 1F 01            [ 2]  153 	ldw	(0x01, sp), x
+      00005E                        154 00103$:
+      00005E 5F               [ 1]  155 	clrw	x
+      00005F 7B 06            [ 1]  156 	ld	a, (0x06, sp)
+      000061 97               [ 1]  157 	ld	xl, a
+      000062 13 01            [ 2]  158 	cpw	x, (0x01, sp)
+      000064 2F 1C            [ 1]  159 	jrslt	00101$
+                                    160 ;	HAL/src/nrf24.c: 41: data_buffer[i] = write_buffer[i - 1];
+      000066 16 01            [ 2]  161 	ldw	y, (0x01, sp)
+      000068 72 A9r00r00      [ 2]  162 	addw	y, #(_data_buffer + 0)
+      00006C 7B 02            [ 1]  163 	ld	a, (0x02, sp)
+      00006E 4A               [ 1]  164 	dec	a
+      00006F 97               [ 1]  165 	ld	xl, a
+      000070 49               [ 1]  166 	rlc	a
+      000071 4F               [ 1]  167 	clr	a
+      000072 A2 00            [ 1]  168 	sbc	a, #0x00
+      000074 95               [ 1]  169 	ld	xh, a
+      000075 1Cr00r21         [ 2]  170 	addw	x, #(_write_buffer + 0)
+      000078 F6               [ 1]  171 	ld	a, (x)
+      000079 90 F7            [ 1]  172 	ld	(y), a
+                                    173 ;	HAL/src/nrf24.c: 39: for (i = 1; i <= len; i++)
+      00007B 1E 01            [ 2]  174 	ldw	x, (0x01, sp)
+      00007D 5C               [ 1]  175 	incw	x
+      00007E 1F 01            [ 2]  176 	ldw	(0x01, sp), x
+      000080 20 DC            [ 2]  177 	jra	00103$
+      000082                        178 00101$:
+                                    179 ;	HAL/src/nrf24.c: 43: SPI_Send(data_buffer, len + 1);
+      000082 5C               [ 1]  180 	incw	x
+      000083 89               [ 2]  181 	pushw	x
+      000084 4Br00            [ 1]  182 	push	#<(_data_buffer + 0)
+      000086 4Bs00            [ 1]  183 	push	#((_data_buffer + 0) >> 8)
+      000088 CDr00r00         [ 4]  184 	call	_SPI_Send
+                                    185 ;	HAL/src/nrf24.c: 44: }
+      00008B 5B 06            [ 2]  186 	addw	sp, #6
+      00008D 81               [ 4]  187 	ret
+                                    188 ;	HAL/src/nrf24.c: 96: void nrf24_listen()
+                                    189 ;	-----------------------------------------
+                                    190 ;	 function nrf24_listen
+                                    191 ;	-----------------------------------------
+      00008E                        192 _nrf24_listen:
+                                    193 ;	HAL/src/nrf24.c: 98: }
+      00008E 81               [ 4]  194 	ret
+                                    195 ;	HAL/src/nrf24.c: 100: void nrf24_setup()
+                                    196 ;	-----------------------------------------
+                                    197 ;	 function nrf24_setup
+                                    198 ;	-----------------------------------------
+      00008F                        199 _nrf24_setup:
+      00008F 52 0E            [ 2]  200 	sub	sp, #14
+                                    201 ;	HAL/src/nrf24.c: 113: uint8_t rx_addr[] = {0xE0, 0xE0, 0xF1, 0xF1, 0xE0};
+      000091 A6 E0            [ 1]  202 	ld	a, #0xe0
+      000093 6B 01            [ 1]  203 	ld	(0x01, sp), a
+      000095 96               [ 1]  204 	ldw	x, sp
+      000096 A6 E0            [ 1]  205 	ld	a, #0xe0
+      000098 E7 02            [ 1]  206 	ld	(2, x), a
+      00009A 96               [ 1]  207 	ldw	x, sp
+      00009B A6 F1            [ 1]  208 	ld	a, #0xf1
+      00009D E7 03            [ 1]  209 	ld	(3, x), a
+      00009F 96               [ 1]  210 	ldw	x, sp
+      0000A0 A6 F1            [ 1]  211 	ld	a, #0xf1
+      0000A2 E7 04            [ 1]  212 	ld	(4, x), a
+      0000A4 96               [ 1]  213 	ldw	x, sp
+      0000A5 A6 E0            [ 1]  214 	ld	a, #0xe0
+      0000A7 E7 05            [ 1]  215 	ld	(5, x), a
+                                    216 ;	HAL/src/nrf24.c: 114: uint8_t tx_addr[] = {0xF1, 0xF1, 0xF0, 0xF0, 0xE0};
+      0000A9 A6 F1            [ 1]  217 	ld	a, #0xf1
+      0000AB 6B 06            [ 1]  218 	ld	(0x06, sp), a
+      0000AD 96               [ 1]  219 	ldw	x, sp
+      0000AE A6 F1            [ 1]  220 	ld	a, #0xf1
+      0000B0 E7 07            [ 1]  221 	ld	(7, x), a
+      0000B2 96               [ 1]  222 	ldw	x, sp
+      0000B3 A6 F0            [ 1]  223 	ld	a, #0xf0
+      0000B5 E7 08            [ 1]  224 	ld	(8, x), a
+      0000B7 96               [ 1]  225 	ldw	x, sp
+      0000B8 A6 F0            [ 1]  226 	ld	a, #0xf0
+      0000BA E7 09            [ 1]  227 	ld	(9, x), a
+      0000BC 96               [ 1]  228 	ldw	x, sp
+      0000BD A6 E0            [ 1]  229 	ld	a, #0xe0
+      0000BF E7 0A            [ 1]  230 	ld	(10, x), a
+                                    231 ;	HAL/src/nrf24.c: 117: write_buffer[0] = 90;
+      0000C1 35 5Au00u21      [ 1]  232 	mov	_write_buffer+0, #0x5a
+                                    233 ;	HAL/src/nrf24.c: 118: nrf24_write_register(RF_CH, 1);
+      0000C5 4B 01            [ 1]  234 	push	#0x01
+      0000C7 4B 05            [ 1]  235 	push	#0x05
+      0000C9 CDr00r4F         [ 4]  236 	call	_nrf24_write_register
+      0000CC 85               [ 2]  237 	popw	x
+                                    238 ;	HAL/src/nrf24.c: 121: write_buffer[0] = 36;
+      0000CD 35 24u00u21      [ 1]  239 	mov	_write_buffer+0, #0x24
+                                    240 ;	HAL/src/nrf24.c: 122: nrf24_write_register(RF_SETUP, 1);
+      0000D1 4B 01            [ 1]  241 	push	#0x01
+      0000D3 4B 06            [ 1]  242 	push	#0x06
+      0000D5 CDr00r4F         [ 4]  243 	call	_nrf24_write_register
+      0000D8 85               [ 2]  244 	popw	x
+                                    245 ;	HAL/src/nrf24.c: 125: write_buffer[0] = 0x3f;
+      0000D9 35 3Fu00u21      [ 1]  246 	mov	_write_buffer+0, #0x3f
+                                    247 ;	HAL/src/nrf24.c: 126: nrf24_write_register(EN_AA, 1);
+      0000DD 4B 01            [ 1]  248 	push	#0x01
+      0000DF 4B 01            [ 1]  249 	push	#0x01
+      0000E1 CDr00r4F         [ 4]  250 	call	_nrf24_write_register
+      0000E4 85               [ 2]  251 	popw	x
+                                    252 ;	HAL/src/nrf24.c: 129: write_buffer[0] = 0x3f;
+      0000E5 35 3Fu00u21      [ 1]  253 	mov	_write_buffer+0, #0x3f
+                                    254 ;	HAL/src/nrf24.c: 130: nrf24_write_register(DYNPD, 1);
+      0000E9 4B 01            [ 1]  255 	push	#0x01
+      0000EB 4B 1C            [ 1]  256 	push	#0x1c
+      0000ED CDr00r4F         [ 4]  257 	call	_nrf24_write_register
+      0000F0 85               [ 2]  258 	popw	x
+                                    259 ;	HAL/src/nrf24.c: 132: write_buffer[0] = 0x06;
+      0000F1 35 06u00u21      [ 1]  260 	mov	_write_buffer+0, #0x06
+                                    261 ;	HAL/src/nrf24.c: 133: nrf24_write_register(FEATURE, 1);
+      0000F5 4B 01            [ 1]  262 	push	#0x01
+      0000F7 4B 1D            [ 1]  263 	push	#0x1d
+      0000F9 CDr00r4F         [ 4]  264 	call	_nrf24_write_register
+      0000FC 85               [ 2]  265 	popw	x
+                                    266 ;	HAL/src/nrf24.c: 136: for (i = 0; i < 5; i++)
+      0000FD 90 5F            [ 1]  267 	clrw	y
+      0000FF                        268 00104$:
+                                    269 ;	HAL/src/nrf24.c: 138: write_buffer[i] = rx_addr[4 - i];
+      0000FF 93               [ 1]  270 	ldw	x, y
+      000100 1Cr00r21         [ 2]  271 	addw	x, #(_write_buffer + 0)
+      000103 1F 0B            [ 2]  272 	ldw	(0x0b, sp), x
+      000105 93               [ 1]  273 	ldw	x, y
+      000106 A6 04            [ 1]  274 	ld	a, #0x04
+      000108 89               [ 2]  275 	pushw	x
+      000109 10 02            [ 1]  276 	sub	a, (2, sp)
+      00010B 85               [ 2]  277 	popw	x
+      00010C 6B 0E            [ 1]  278 	ld	(0x0e, sp), a
+      00010E 49               [ 1]  279 	rlc	a
+      00010F 4F               [ 1]  280 	clr	a
+      000110 A2 00            [ 1]  281 	sbc	a, #0x00
+      000112 6B 0D            [ 1]  282 	ld	(0x0d, sp), a
+      000114 96               [ 1]  283 	ldw	x, sp
+      000115 1C 00 01         [ 2]  284 	addw	x, #1
+      000118 72 FB 0D         [ 2]  285 	addw	x, (0x0d, sp)
+      00011B F6               [ 1]  286 	ld	a, (x)
+      00011C 1E 0B            [ 2]  287 	ldw	x, (0x0b, sp)
+      00011E F7               [ 1]  288 	ld	(x), a
+                                    289 ;	HAL/src/nrf24.c: 136: for (i = 0; i < 5; i++)
+      00011F 90 5C            [ 1]  290 	incw	y
+      000121 90 A3 00 05      [ 2]  291 	cpw	y, #0x0005
+      000125 2F D8            [ 1]  292 	jrslt	00104$
+                                    293 ;	HAL/src/nrf24.c: 140: nrf24_write_register(RX_ADDR_P1, 5);
+      000127 4B 05            [ 1]  294 	push	#0x05
+      000129 4B 0B            [ 1]  295 	push	#0x0b
+      00012B CDr00r4F         [ 4]  296 	call	_nrf24_write_register
+      00012E 85               [ 2]  297 	popw	x
+                                    298 ;	HAL/src/nrf24.c: 142: for (i = 0; i < 5; i++)
+      00012F 90 5F            [ 1]  299 	clrw	y
+      000131                        300 00106$:
+                                    301 ;	HAL/src/nrf24.c: 144: write_buffer[i] = tx_addr[4 - i];
+      000131 93               [ 1]  302 	ldw	x, y
+      000132 1Cr00r21         [ 2]  303 	addw	x, #(_write_buffer + 0)
+      000135 1F 0B            [ 2]  304 	ldw	(0x0b, sp), x
+      000137 93               [ 1]  305 	ldw	x, y
+      000138 A6 04            [ 1]  306 	ld	a, #0x04
+      00013A 89               [ 2]  307 	pushw	x
+      00013B 10 02            [ 1]  308 	sub	a, (2, sp)
+      00013D 85               [ 2]  309 	popw	x
+      00013E 6B 0E            [ 1]  310 	ld	(0x0e, sp), a
+      000140 49               [ 1]  311 	rlc	a
+      000141 4F               [ 1]  312 	clr	a
+      000142 A2 00            [ 1]  313 	sbc	a, #0x00
+      000144 6B 0D            [ 1]  314 	ld	(0x0d, sp), a
+      000146 96               [ 1]  315 	ldw	x, sp
+      000147 1C 00 06         [ 2]  316 	addw	x, #6
+      00014A 72 FB 0D         [ 2]  317 	addw	x, (0x0d, sp)
+      00014D F6               [ 1]  318 	ld	a, (x)
+      00014E 1E 0B            [ 2]  319 	ldw	x, (0x0b, sp)
+      000150 F7               [ 1]  320 	ld	(x), a
+                                    321 ;	HAL/src/nrf24.c: 142: for (i = 0; i < 5; i++)
+      000151 90 5C            [ 1]  322 	incw	y
+      000153 90 A3 00 05      [ 2]  323 	cpw	y, #0x0005
+      000157 2F D8            [ 1]  324 	jrslt	00106$
+                                    325 ;	HAL/src/nrf24.c: 146: nrf24_write_register(TX_ADDR, 5);
+      000159 4B 05            [ 1]  326 	push	#0x05
+      00015B 4B 10            [ 1]  327 	push	#0x10
+      00015D CDr00r4F         [ 4]  328 	call	_nrf24_write_register
+      000160 85               [ 2]  329 	popw	x
+                                    330 ;	HAL/src/nrf24.c: 148: for (i = 0; i < 5; i++)
+      000161 90 5F            [ 1]  331 	clrw	y
+      000163                        332 00108$:
+                                    333 ;	HAL/src/nrf24.c: 150: write_buffer[i] = tx_addr[4 - i];
+      000163 93               [ 1]  334 	ldw	x, y
+      000164 1Cr00r21         [ 2]  335 	addw	x, #(_write_buffer + 0)
+      000167 1F 0B            [ 2]  336 	ldw	(0x0b, sp), x
+      000169 93               [ 1]  337 	ldw	x, y
+      00016A A6 04            [ 1]  338 	ld	a, #0x04
+      00016C 89               [ 2]  339 	pushw	x
+      00016D 10 02            [ 1]  340 	sub	a, (2, sp)
+      00016F 85               [ 2]  341 	popw	x
+      000170 6B 0E            [ 1]  342 	ld	(0x0e, sp), a
+      000172 49               [ 1]  343 	rlc	a
+      000173 4F               [ 1]  344 	clr	a
+      000174 A2 00            [ 1]  345 	sbc	a, #0x00
+      000176 6B 0D            [ 1]  346 	ld	(0x0d, sp), a
+      000178 96               [ 1]  347 	ldw	x, sp
+      000179 1C 00 06         [ 2]  348 	addw	x, #6
+      00017C 72 FB 0D         [ 2]  349 	addw	x, (0x0d, sp)
+      00017F F6               [ 1]  350 	ld	a, (x)
+      000180 1E 0B            [ 2]  351 	ldw	x, (0x0b, sp)
+      000182 F7               [ 1]  352 	ld	(x), a
+                                    353 ;	HAL/src/nrf24.c: 148: for (i = 0; i < 5; i++)
+      000183 90 5C            [ 1]  354 	incw	y
+      000185 90 A3 00 05      [ 2]  355 	cpw	y, #0x0005
+      000189 2F D8            [ 1]  356 	jrslt	00108$
+                                    357 ;	HAL/src/nrf24.c: 152: nrf24_write_register(RX_ADDR_P0, 5);
+      00018B 4B 05            [ 1]  358 	push	#0x05
+      00018D 4B 0A            [ 1]  359 	push	#0x0a
+      00018F CDr00r4F         [ 4]  360 	call	_nrf24_write_register
+      000192 85               [ 2]  361 	popw	x
+                                    362 ;	HAL/src/nrf24.c: 154: write_buffer[0] = 32;
+      000193 35 20u00u21      [ 1]  363 	mov	_write_buffer+0, #0x20
+                                    364 ;	HAL/src/nrf24.c: 155: nrf24_write_register(RX_PW_P0, 1);
+      000197 4B 01            [ 1]  365 	push	#0x01
+      000199 4B 11            [ 1]  366 	push	#0x11
+      00019B CDr00r4F         [ 4]  367 	call	_nrf24_write_register
+      00019E 85               [ 2]  368 	popw	x
+                                    369 ;	HAL/src/nrf24.c: 158: write_buffer[0] = 32;
+      00019F 35 20u00u21      [ 1]  370 	mov	_write_buffer+0, #0x20
+                                    371 ;	HAL/src/nrf24.c: 159: nrf24_write_register(RX_PW_P1, 1);
+      0001A3 4B 01            [ 1]  372 	push	#0x01
+      0001A5 4B 12            [ 1]  373 	push	#0x12
+      0001A7 CDr00r4F         [ 4]  374 	call	_nrf24_write_register
+      0001AA 85               [ 2]  375 	popw	x
+                                    376 ;	HAL/src/nrf24.c: 162: write_buffer[0] = 0x03;
+      0001AB 35 03u00u21      [ 1]  377 	mov	_write_buffer+0, #0x03
+                                    378 ;	HAL/src/nrf24.c: 163: nrf24_write_register(EN_RXADDR, 1);
+      0001AF 4B 01            [ 1]  379 	push	#0x01
+      0001B1 4B 02            [ 1]  380 	push	#0x02
+      0001B3 CDr00r4F         [ 4]  381 	call	_nrf24_write_register
+      0001B6 85               [ 2]  382 	popw	x
+                                    383 ;	HAL/src/nrf24.c: 166: write_buffer[0] = 11 & ~(1 << PWR_UP);
+      0001B7 35 09u00u21      [ 1]  384 	mov	_write_buffer+0, #0x09
+                                    385 ;	HAL/src/nrf24.c: 167: nrf24_write_register(CONFIG, 1);
+      0001BB 4B 01            [ 1]  386 	push	#0x01
+      0001BD 4B 00            [ 1]  387 	push	#0x00
+      0001BF CDr00r4F         [ 4]  388 	call	_nrf24_write_register
+                                    389 ;	HAL/src/nrf24.c: 168: }
+      0001C2 5B 10            [ 2]  390 	addw	sp, #16
+      0001C4 81               [ 4]  391 	ret
+                                    392 ;	HAL/src/nrf24.c: 169: void nrf24_status_reset()
+                                    393 ;	-----------------------------------------
+                                    394 ;	 function nrf24_status_reset
+                                    395 ;	-----------------------------------------
+      0001C5                        396 _nrf24_status_reset:
+                                    397 ;	HAL/src/nrf24.c: 171: nrf24_read_register(STATUS, 1);
+      0001C5 4B 01            [ 1]  398 	push	#0x01
+      0001C7 4B 07            [ 1]  399 	push	#0x07
+      0001C9 CDr00r25         [ 4]  400 	call	_nrf24_read_register
+      0001CC 85               [ 2]  401 	popw	x
+                                    402 ;	HAL/src/nrf24.c: 172: write_buffer[0] = (1 << RX_DR) | (1 << TX_DS) | (1 << MAX_RT);
+      0001CD 35 70u00u21      [ 1]  403 	mov	_write_buffer+0, #0x70
+                                    404 ;	HAL/src/nrf24.c: 173: nrf24_write_register(STATUS, 1);
+      0001D1 4B 01            [ 1]  405 	push	#0x01
+      0001D3 4B 07            [ 1]  406 	push	#0x07
+      0001D5 CDr00r4F         [ 4]  407 	call	_nrf24_write_register
+      0001D8 85               [ 2]  408 	popw	x
+                                    409 ;	HAL/src/nrf24.c: 174: }
+      0001D9 81               [ 4]  410 	ret
+                                    411 ;	HAL/src/nrf24.c: 176: void nrf24_get_data(uint8_t *packet)
+                                    412 ;	-----------------------------------------
+                                    413 ;	 function nrf24_get_data
+                                    414 ;	-----------------------------------------
+      0001DA                        415 _nrf24_get_data:
+      0001DA 89               [ 2]  416 	pushw	x
+                                    417 ;	HAL/src/nrf24.c: 179: data_buffer[0] = R_RX_PAYLOAD;
+      0001DB 35 61u00u00      [ 1]  418 	mov	_data_buffer+0, #0x61
+                                    419 ;	HAL/src/nrf24.c: 180: for (i = 1; i <= 33; i++)
+      0001DF 5F               [ 1]  420 	clrw	x
+      0001E0 5C               [ 1]  421 	incw	x
+      0001E1                        422 00103$:
+                                    423 ;	HAL/src/nrf24.c: 182: data_buffer[i] = NRF24_NOP;
+      0001E1 A6 FF            [ 1]  424 	ld	a, #0xff
+      0001E3 D7u00u00         [ 1]  425 	ld	((_data_buffer + 0), x), a
+                                    426 ;	HAL/src/nrf24.c: 180: for (i = 1; i <= 33; i++)
+      0001E6 5C               [ 1]  427 	incw	x
+      0001E7 A3 00 21         [ 2]  428 	cpw	x, #0x0021
+      0001EA 2D F5            [ 1]  429 	jrsle	00103$
+                                    430 ;	HAL/src/nrf24.c: 184: SPI_Send(data_buffer, 33);
+      0001EC 4B 21            [ 1]  431 	push	#0x21
+      0001EE 4B 00            [ 1]  432 	push	#0x00
+      0001F0 4Br00            [ 1]  433 	push	#<(_data_buffer + 0)
+      0001F2 4Bs00            [ 1]  434 	push	#((_data_buffer + 0) >> 8)
+      0001F4 CDr00r00         [ 4]  435 	call	_SPI_Send
+      0001F7 5B 04            [ 2]  436 	addw	sp, #4
+                                    437 ;	HAL/src/nrf24.c: 185: for (i = 1; i <= 33; i++)
+      0001F9 90 AE 00 01      [ 2]  438 	ldw	y, #0x0001
+      0001FD                        439 00105$:
+                                    440 ;	HAL/src/nrf24.c: 187: packet[i - 1] = data_buffer[i];
+      0001FD 93               [ 1]  441 	ldw	x, y
+      0001FE 5A               [ 2]  442 	decw	x
+      0001FF 72 FB 05         [ 2]  443 	addw	x, (0x05, sp)
+      000202 1F 01            [ 2]  444 	ldw	(0x01, sp), x
+      000204 93               [ 1]  445 	ldw	x, y
+      000205 1Cr00r00         [ 2]  446 	addw	x, #(_data_buffer + 0)
+      000208 F6               [ 1]  447 	ld	a, (x)
+      000209 1E 01            [ 2]  448 	ldw	x, (0x01, sp)
+      00020B F7               [ 1]  449 	ld	(x), a
+                                    450 ;	HAL/src/nrf24.c: 185: for (i = 1; i <= 33; i++)
+      00020C 90 5C            [ 1]  451 	incw	y
+      00020E 90 A3 00 21      [ 2]  452 	cpw	y, #0x0021
+      000212 2D E9            [ 1]  453 	jrsle	00105$
+                                    454 ;	HAL/src/nrf24.c: 189: }
+      000214 85               [ 2]  455 	popw	x
+      000215 81               [ 4]  456 	ret
+                                    457 ;	HAL/src/nrf24.c: 191: uint8_t nrf24_available()
+                                    458 ;	-----------------------------------------
+                                    459 ;	 function nrf24_available
+                                    460 ;	-----------------------------------------
+      000216                        461 _nrf24_available:
+      000216 88               [ 1]  462 	push	a
+                                    463 ;	HAL/src/nrf24.c: 193: uint8_t result = 0;
+      000217 0F 01            [ 1]  464 	clr	(0x01, sp)
+                                    465 ;	HAL/src/nrf24.c: 194: nrf24_read_register(STATUS, 1);
+      000219 4B 01            [ 1]  466 	push	#0x01
+      00021B 4B 07            [ 1]  467 	push	#0x07
+      00021D CDr00r25         [ 4]  468 	call	_nrf24_read_register
+      000220 85               [ 2]  469 	popw	x
+                                    470 ;	HAL/src/nrf24.c: 195: if (data_buffer[0] & (1 << 6) || (data_buffer[0] & 0x0E != 0x0E))
+      000221 C6u00u00         [ 1]  471 	ld	a, _data_buffer+0
+      000224 A5 40            [ 1]  472 	bcp	a, #0x40
+      000226 26 07            [ 1]  473 	jrne	00101$
+      000228 C6u00u00         [ 1]  474 	ld	a, _data_buffer+0
+      00022B 4F               [ 1]  475 	clr	a
+      00022C 4D               [ 1]  476 	tnz	a
+      00022D 27 04            [ 1]  477 	jreq	00102$
+      00022F                        478 00101$:
+                                    479 ;	HAL/src/nrf24.c: 196: result = 1;
+      00022F A6 01            [ 1]  480 	ld	a, #0x01
+      000231 6B 01            [ 1]  481 	ld	(0x01, sp), a
+      000233                        482 00102$:
+                                    483 ;	HAL/src/nrf24.c: 198: nrf24_read_register(STATUS, 1);
+      000233 4B 01            [ 1]  484 	push	#0x01
+      000235 4B 07            [ 1]  485 	push	#0x07
+      000237 CDr00r25         [ 4]  486 	call	_nrf24_read_register
+      00023A 85               [ 2]  487 	popw	x
+                                    488 ;	HAL/src/nrf24.c: 199: if (data_buffer[0] & (1 << 5))
+      00023B C6u00u00         [ 1]  489 	ld	a, _data_buffer+0
+      00023E A5 20            [ 1]  490 	bcp	a, #0x20
+      000240 27 0C            [ 1]  491 	jreq	00105$
+                                    492 ;	HAL/src/nrf24.c: 201: write_buffer[0] = (1 << 5);
+      000242 35 20u00u21      [ 1]  493 	mov	_write_buffer+0, #0x20
+                                    494 ;	HAL/src/nrf24.c: 202: nrf24_write_register(STATUS, 1);
+      000246 4B 01            [ 1]  495 	push	#0x01
+      000248 4B 07            [ 1]  496 	push	#0x07
+      00024A CDr00r4F         [ 4]  497 	call	_nrf24_write_register
+      00024D 85               [ 2]  498 	popw	x
+      00024E                        499 00105$:
+                                    500 ;	HAL/src/nrf24.c: 204: return result;
+      00024E 7B 01            [ 1]  501 	ld	a, (0x01, sp)
+                                    502 ;	HAL/src/nrf24.c: 205: }
+      000250 5B 01            [ 2]  503 	addw	sp, #1
+      000252 81               [ 4]  504 	ret
+                                    505 ;	HAL/src/nrf24.c: 207: uint8_t nrf24_getDynamicPayloadSize()
+                                    506 ;	-----------------------------------------
+                                    507 ;	 function nrf24_getDynamicPayloadSize
+                                    508 ;	-----------------------------------------
+      000253                        509 _nrf24_getDynamicPayloadSize:
+                                    510 ;	HAL/src/nrf24.c: 209: data_buffer[0] = R_RX_PL_WID;
+      000253 35 60u00u00      [ 1]  511 	mov	_data_buffer+0, #0x60
+                                    512 ;	HAL/src/nrf24.c: 210: data_buffer[1] = NRF24_NOP;
+      000257 35 FFu00u01      [ 1]  513 	mov	_data_buffer+1, #0xff
+                                    514 ;	HAL/src/nrf24.c: 211: SPI_Send(data_buffer, 2);
+      00025B 4B 02            [ 1]  515 	push	#0x02
+      00025D 4B 00            [ 1]  516 	push	#0x00
+      00025F 4Br00            [ 1]  517 	push	#<(_data_buffer + 0)
+      000261 4Bs00            [ 1]  518 	push	#((_data_buffer + 0) >> 8)
+      000263 CDr00r00         [ 4]  519 	call	_SPI_Send
+      000266 5B 04            [ 2]  520 	addw	sp, #4
+                                    521 ;	HAL/src/nrf24.c: 212: return data_buffer[1];
+      000268 C6u00u01         [ 1]  522 	ld	a, _data_buffer+1
+                                    523 ;	HAL/src/nrf24.c: 213: }
+      00026B 81               [ 4]  524 	ret
+                                    525 ;	HAL/src/nrf24.c: 214: void nrf24_startListening()
+                                    526 ;	-----------------------------------------
+                                    527 ;	 function nrf24_startListening
+                                    528 ;	-----------------------------------------
+      00026C                        529 _nrf24_startListening:
+                                    530 ;	HAL/src/nrf24.c: 216: nrf24_read_register(CONFIG, 1);
+      00026C 4B 01            [ 1]  531 	push	#0x01
+      00026E 4B 00            [ 1]  532 	push	#0x00
+      000270 CDr00r25         [ 4]  533 	call	_nrf24_read_register
+      000273 85               [ 2]  534 	popw	x
+                                    535 ;	HAL/src/nrf24.c: 217: write_buffer[0] = data_buffer[1] | (1 << PRIM_RX);
+      000274 C6u00u01         [ 1]  536 	ld	a, _data_buffer+1
+      000277 AA 01            [ 1]  537 	or	a, #0x01
+      000279 C7u00u21         [ 1]  538 	ld	_write_buffer+0, a
+                                    539 ;	HAL/src/nrf24.c: 218: nrf24_write_register(CONFIG, 1);
+      00027C 4B 01            [ 1]  540 	push	#0x01
+      00027E 4B 00            [ 1]  541 	push	#0x00
+      000280 CDr00r4F         [ 4]  542 	call	_nrf24_write_register
+      000283 85               [ 2]  543 	popw	x
+                                    544 ;	HAL/src/nrf24.c: 219: write_buffer[0] = (1 << 6) | (1 << 5) | (1 << 4);
+      000284 35 70u00u21      [ 1]  545 	mov	_write_buffer+0, #0x70
+                                    546 ;	HAL/src/nrf24.c: 220: nrf24_write_register(STATUS, 1);
+      000288 4B 01            [ 1]  547 	push	#0x01
+      00028A 4B 07            [ 1]  548 	push	#0x07
+      00028C CDr00r4F         [ 4]  549 	call	_nrf24_write_register
+      00028F 85               [ 2]  550 	popw	x
+                                    551 ;	HAL/src/nrf24.c: 221: nrf_ce_high();
+      000290 72 18 50 0F      [ 1]  552 	bset	20495, #4
+                                    553 ;	HAL/src/nrf24.c: 222: }
+      000294 81               [ 4]  554 	ret
+                                    555 ;	HAL/src/nrf24.c: 224: void nrf24_stopListening()
+                                    556 ;	-----------------------------------------
+                                    557 ;	 function nrf24_stopListening
+                                    558 ;	-----------------------------------------
+      000295                        559 _nrf24_stopListening:
+                                    560 ;	HAL/src/nrf24.c: 226: nrf_ce_low();
+      000295 72 19 50 0F      [ 1]  561 	bres	20495, #4
+                                    562 ;	HAL/src/nrf24.c: 227: nrf24_read_register(CONFIG, 1);
+      000299 4B 01            [ 1]  563 	push	#0x01
+      00029B 4B 00            [ 1]  564 	push	#0x00
+      00029D CDr00r25         [ 4]  565 	call	_nrf24_read_register
+      0002A0 85               [ 2]  566 	popw	x
+                                    567 ;	HAL/src/nrf24.c: 228: write_buffer[0] = data_buffer[1] & ~(1 << PRIM_RX);
+      0002A1 C6u00u01         [ 1]  568 	ld	a, _data_buffer+1
+      0002A4 A4 FE            [ 1]  569 	and	a, #0xfe
+      0002A6 C7u00u21         [ 1]  570 	ld	_write_buffer+0, a
+                                    571 ;	HAL/src/nrf24.c: 229: nrf24_write_register(CONFIG, 1);
+      0002A9 4B 01            [ 1]  572 	push	#0x01
+      0002AB 4B 00            [ 1]  573 	push	#0x00
+      0002AD CDr00r4F         [ 4]  574 	call	_nrf24_write_register
+      0002B0 85               [ 2]  575 	popw	x
+                                    576 ;	HAL/src/nrf24.c: 230: }
+      0002B1 81               [ 4]  577 	ret
+                                    578 ;	HAL/src/nrf24.c: 232: void radio_power_up()
+                                    579 ;	-----------------------------------------
+                                    580 ;	 function radio_power_up
+                                    581 ;	-----------------------------------------
+      0002B2                        582 _radio_power_up:
+                                    583 ;	HAL/src/nrf24.c: 234: nrf24_read_register(CONFIG, 1);
+      0002B2 4B 01            [ 1]  584 	push	#0x01
+      0002B4 4B 00            [ 1]  585 	push	#0x00
+      0002B6 CDr00r25         [ 4]  586 	call	_nrf24_read_register
+      0002B9 85               [ 2]  587 	popw	x
+                                    588 ;	HAL/src/nrf24.c: 235: write_buffer[0] = data_buffer[1] | (1 << PWR_UP);
+      0002BA C6u00u01         [ 1]  589 	ld	a, _data_buffer+1
+      0002BD AA 02            [ 1]  590 	or	a, #0x02
+      0002BF C7u00u21         [ 1]  591 	ld	_write_buffer+0, a
+                                    592 ;	HAL/src/nrf24.c: 236: nrf24_write_register(CONFIG, 1);
+      0002C2 4B 01            [ 1]  593 	push	#0x01
+      0002C4 4B 00            [ 1]  594 	push	#0x00
+      0002C6 CDr00r4F         [ 4]  595 	call	_nrf24_write_register
+      0002C9 85               [ 2]  596 	popw	x
+                                    597 ;	HAL/src/nrf24.c: 237: }
+      0002CA 81               [ 4]  598 	ret
+                                    599 ;	HAL/src/nrf24.c: 238: void radio_power_down()
+                                    600 ;	-----------------------------------------
+                                    601 ;	 function radio_power_down
+                                    602 ;	-----------------------------------------
+      0002CB                        603 _radio_power_down:
+                                    604 ;	HAL/src/nrf24.c: 240: nrf24_read_register(CONFIG, 1);
+      0002CB 4B 01            [ 1]  605 	push	#0x01
+      0002CD 4B 00            [ 1]  606 	push	#0x00
+      0002CF CDr00r25         [ 4]  607 	call	_nrf24_read_register
+      0002D2 85               [ 2]  608 	popw	x
+                                    609 ;	HAL/src/nrf24.c: 241: write_buffer[0] = data_buffer[1] & ~(1 << PWR_UP);
+      0002D3 C6u00u01         [ 1]  610 	ld	a, _data_buffer+1
+      0002D6 A4 FD            [ 1]  611 	and	a, #0xfd
+      0002D8 C7u00u21         [ 1]  612 	ld	_write_buffer+0, a
+                                    613 ;	HAL/src/nrf24.c: 242: nrf24_write_register(CONFIG, 1);
+      0002DB 4B 01            [ 1]  614 	push	#0x01
+      0002DD 4B 00            [ 1]  615 	push	#0x00
+      0002DF CDr00r4F         [ 4]  616 	call	_nrf24_write_register
+      0002E2 85               [ 2]  617 	popw	x
+                                    618 ;	HAL/src/nrf24.c: 243: }
+      0002E3 81               [ 4]  619 	ret
+                                    620 ;	HAL/src/nrf24.c: 245: void radio_init()
+                                    621 ;	-----------------------------------------
+                                    622 ;	 function radio_init
+                                    623 ;	-----------------------------------------
+      0002E4                        624 _radio_init:
+                                    625 ;	HAL/src/nrf24.c: 247: spi_init();
+      0002E4 CDr00r00         [ 4]  626 	call	_spi_init
+                                    627 ;	HAL/src/nrf24.c: 248: nrf_ce_low();
+      0002E7 72 19 50 0F      [ 1]  628 	bres	20495, #4
+                                    629 ;	HAL/src/nrf24.c: 249: nrf_nss_low();
+      0002EB C6 50 00         [ 1]  630 	ld	a, 0x5000
+      0002EE A4 F7            [ 1]  631 	and	a, #0xf7
+      0002F0 C7 50 00         [ 1]  632 	ld	0x5000, a
+                                    633 ;	HAL/src/nrf24.c: 250: nrf24_setup();
+                                    634 ;	HAL/src/nrf24.c: 251: }
+      0002F3 CCr00r8F         [ 2]  635 	jp	_nrf24_setup
+                                    636 ;	HAL/src/nrf24.c: 252: uint8_t radio_recieve(uint8_t *packet)
+                                    637 ;	-----------------------------------------
+                                    638 ;	 function radio_recieve
+                                    639 ;	-----------------------------------------
+      0002F6                        640 _radio_recieve:
+      0002F6 88               [ 1]  641 	push	a
+                                    642 ;	HAL/src/nrf24.c: 254: nrf24_startListening();
+      0002F7 CDr02r6C         [ 4]  643 	call	_nrf24_startListening
+                                    644 ;	HAL/src/nrf24.c: 255: while (!nrf24_available())
+      0002FA                        645 00101$:
+      0002FA CDr02r16         [ 4]  646 	call	_nrf24_available
+      0002FD 4D               [ 1]  647 	tnz	a
+      0002FE 27 FA            [ 1]  648 	jreq	00101$
+                                    649 ;	HAL/src/nrf24.c: 257: uint8_t size = nrf24_getDynamicPayloadSize();
+      000300 CDr02r53         [ 4]  650 	call	_nrf24_getDynamicPayloadSize
+                                    651 ;	HAL/src/nrf24.c: 258: if (size == 0)
+      000303 6B 01            [ 1]  652 	ld	(0x01, sp), a
+      000305 26 03            [ 1]  653 	jrne	00105$
+                                    654 ;	HAL/src/nrf24.c: 260: return 0; // No payload
+      000307 4F               [ 1]  655 	clr	a
+      000308 20 0C            [ 2]  656 	jra	00106$
+      00030A                        657 00105$:
+                                    658 ;	HAL/src/nrf24.c: 262: nrf24_stopListening();
+      00030A CDr02r95         [ 4]  659 	call	_nrf24_stopListening
+                                    660 ;	HAL/src/nrf24.c: 263: nrf24_get_data(packet);
+      00030D 1E 04            [ 2]  661 	ldw	x, (0x04, sp)
+      00030F 89               [ 2]  662 	pushw	x
+      000310 CDr01rDA         [ 4]  663 	call	_nrf24_get_data
+      000313 85               [ 2]  664 	popw	x
+                                    665 ;	HAL/src/nrf24.c: 264: return size;
+      000314 7B 01            [ 1]  666 	ld	a, (0x01, sp)
+      000316                        667 00106$:
+                                    668 ;	HAL/src/nrf24.c: 265: }
+      000316 5B 01            [ 2]  669 	addw	sp, #1
+      000318 81               [ 4]  670 	ret
+                                    671 ;	HAL/src/nrf24.c: 267: void radio_send(uint8_t *data, uint8_t data_len)
+                                    672 ;	-----------------------------------------
+                                    673 ;	 function radio_send
+                                    674 ;	-----------------------------------------
+      000319                        675 _radio_send:
+      000319 52 03            [ 2]  676 	sub	sp, #3
+                                    677 ;	HAL/src/nrf24.c: 269: uint8_t cmd = FLUSH_TX;
+      00031B A6 E1            [ 1]  678 	ld	a, #0xe1
+      00031D 6B 01            [ 1]  679 	ld	(0x01, sp), a
+                                    680 ;	HAL/src/nrf24.c: 270: SPI_Send(&cmd, 1);
+      00031F 4B 01            [ 1]  681 	push	#0x01
+      000321 4B 00            [ 1]  682 	push	#0x00
+      000323 96               [ 1]  683 	ldw	x, sp
+      000324 1C 00 03         [ 2]  684 	addw	x, #3
+      000327 89               [ 2]  685 	pushw	x
+      000328 CDr00r00         [ 4]  686 	call	_SPI_Send
+      00032B 5B 04            [ 2]  687 	addw	sp, #4
+                                    688 ;	HAL/src/nrf24.c: 271: nrf24_status_reset();
+      00032D CDr01rC5         [ 4]  689 	call	_nrf24_status_reset
+                                    690 ;	HAL/src/nrf24.c: 272: nrf_ce_low();
+      000330 72 19 50 0F      [ 1]  691 	bres	20495, #4
+                                    692 ;	HAL/src/nrf24.c: 273: nrf24_read_register(CONFIG, 1);
+      000334 4B 01            [ 1]  693 	push	#0x01
+      000336 4B 00            [ 1]  694 	push	#0x00
+      000338 CDr00r25         [ 4]  695 	call	_nrf24_read_register
+      00033B 85               [ 2]  696 	popw	x
+                                    697 ;	HAL/src/nrf24.c: 274: write_buffer[0] = data_buffer[1] & ~(1 << PRIM_RX);
+      00033C C6u00u01         [ 1]  698 	ld	a, _data_buffer+1
+      00033F A4 FE            [ 1]  699 	and	a, #0xfe
+      000341 C7u00u21         [ 1]  700 	ld	_write_buffer+0, a
+                                    701 ;	HAL/src/nrf24.c: 275: nrf24_write_register(CONFIG, 1);
+      000344 4B 01            [ 1]  702 	push	#0x01
+      000346 4B 00            [ 1]  703 	push	#0x00
+      000348 CDr00r4F         [ 4]  704 	call	_nrf24_write_register
+      00034B 85               [ 2]  705 	popw	x
+                                    706 ;	HAL/src/nrf24.c: 277: data_buffer[0] = W_TX_PAYLOAD;
+      00034C 35 A0u00u00      [ 1]  707 	mov	_data_buffer+0, #0xa0
+                                    708 ;	HAL/src/nrf24.c: 278: for (int i = 0; i < data_len; i++)
+      000350 90 5F            [ 1]  709 	clrw	y
+      000352                        710 00104$:
+      000352 7B 08            [ 1]  711 	ld	a, (0x08, sp)
+      000354 6B 03            [ 1]  712 	ld	(0x03, sp), a
+      000356 0F 02            [ 1]  713 	clr	(0x02, sp)
+      000358 51               [ 1]  714 	exgw	x, y
+      000359 13 02            [ 2]  715 	cpw	x, (0x02, sp)
+      00035B 51               [ 1]  716 	exgw	x, y
+      00035C 2E 19            [ 1]  717 	jrsge	00101$
+                                    718 ;	HAL/src/nrf24.c: 280: data_buffer[i + 1] = data[i];
+      00035E 93               [ 1]  719 	ldw	x, y
+      00035F 5C               [ 1]  720 	incw	x
+      000360 9F               [ 1]  721 	ld	a, xl
+      000361 49               [ 1]  722 	rlc	a
+      000362 4F               [ 1]  723 	clr	a
+      000363 A2 00            [ 1]  724 	sbc	a, #0x00
+      000365 95               [ 1]  725 	ld	xh, a
+      000366 1Cr00r00         [ 2]  726 	addw	x, #(_data_buffer + 0)
+      000369 1F 02            [ 2]  727 	ldw	(0x02, sp), x
+      00036B 93               [ 1]  728 	ldw	x, y
+      00036C 72 FB 06         [ 2]  729 	addw	x, (0x06, sp)
+      00036F F6               [ 1]  730 	ld	a, (x)
+      000370 1E 02            [ 2]  731 	ldw	x, (0x02, sp)
+      000372 F7               [ 1]  732 	ld	(x), a
+                                    733 ;	HAL/src/nrf24.c: 278: for (int i = 0; i < data_len; i++)
+      000373 90 5C            [ 1]  734 	incw	y
+      000375 20 DB            [ 2]  735 	jra	00104$
+      000377                        736 00101$:
+                                    737 ;	HAL/src/nrf24.c: 282: SPI_Send(data_buffer, data_len + 1);
+      000377 1E 02            [ 2]  738 	ldw	x, (0x02, sp)
+      000379 5C               [ 1]  739 	incw	x
+      00037A 89               [ 2]  740 	pushw	x
+      00037B 4Br00            [ 1]  741 	push	#<(_data_buffer + 0)
+      00037D 4Bs00            [ 1]  742 	push	#((_data_buffer + 0) >> 8)
+      00037F CDr00r00         [ 4]  743 	call	_SPI_Send
+      000382 5B 04            [ 2]  744 	addw	sp, #4
+                                    745 ;	HAL/src/nrf24.c: 283: nrf_ce_high();
+      000384 72 18 50 0F      [ 1]  746 	bset	20495, #4
+                                    747 ;	HAL/src/nrf24.c: 284: for (int i = 40; i > 0; i--)
+      000388 AE 00 28         [ 2]  748 	ldw	x, #0x0028
+      00038B                        749 00107$:
+      00038B A3 00 00         [ 2]  750 	cpw	x, #0x0000
+      00038E 2D 03            [ 1]  751 	jrsle	00102$
+      000390 5A               [ 2]  752 	decw	x
+      000391 20 F8            [ 2]  753 	jra	00107$
+      000393                        754 00102$:
+                                    755 ;	HAL/src/nrf24.c: 286: nrf_ce_low();
+      000393 72 19 50 0F      [ 1]  756 	bres	20495, #4
+                                    757 ;	HAL/src/nrf24.c: 287: }
+      000397 5B 03            [ 2]  758 	addw	sp, #3
+      000399 81               [ 4]  759 	ret
+                                    760 	.area CODE
+                                    761 	.area CONST
+                                    762 	.area INITIALIZER
+                                    763 	.area CABS (ABS)

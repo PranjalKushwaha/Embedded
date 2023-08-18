@@ -1,0 +1,39 @@
+XH3
+H B areas 4 global symbols
+M spi
+O -mstm8
+S .__.ABS. Def000000
+A _CODE size 0 flags 0 addr 0
+A DATA size 0 flags 0 addr 0
+A INITIALIZED size 0 flags 0 addr 0
+A DABS size 0 flags 8 addr 0
+A HOME size 0 flags 0 addr 0
+A GSINIT size 0 flags 0 addr 0
+A GSFINAL size 0 flags 0 addr 0
+A CONST size 0 flags 0 addr 0
+A INITIALIZER size 0 flags 0 addr 0
+A CODE size 3C flags 0 addr 0
+S _init_nrf_ce_csn Def000000
+S _spi_transceiver Def00002C
+S _spi_init Def000019
+A CABS size 0 flags 8 addr 0
+T 00 00 00
+R 00 00 00 09
+T 00 00 00 72 18 50 11 72 18 50 12 72 19 50 0F 72
+R 00 00 00 09
+T 00 00 0D 16 50 02 72 16 50 03 72 17 50 00 81
+R 00 00 00 09
+T 00 00 19
+R 00 00 00 09
+T 00 00 19 72 16 52 00 72 1C 52 00 C6 52 00 AA 04
+R 00 00 00 09
+T 00 00 26 C7 52 00 CC 00 00
+R 00 00 00 09 00 07 00 09
+T 00 00 2C
+R 00 00 00 09
+T 00 00 2C AE 52 04 7B 03 F7
+R 00 00 00 09
+T 00 00 32
+R 00 00 00 09
+T 00 00 32 C6 52 03 44 24 FA C6 52 04 81
+R 00 00 00 09
